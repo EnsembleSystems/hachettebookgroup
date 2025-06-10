@@ -132,6 +132,10 @@ nav {
   margin-right: 40px;
 }
 
+.main-nav li:hover {
+  text-decoration: underline;
+}
+
 .main-nav a {
   text-decoration: none;
   display: flex;
