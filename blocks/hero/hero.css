@@ -27,7 +27,7 @@
   max-width: 470px;
 }
 
-.hero h2 {
+.hero h1 {
   margin-bottom: 16px;
   font-weight: 700;
   color: #42484d;
@@ -112,7 +112,7 @@
     padding: 28px 18px;
   }
   
-  .hero h2 {
+  .hero h1 {
     font-size: 32px;
   }
   
