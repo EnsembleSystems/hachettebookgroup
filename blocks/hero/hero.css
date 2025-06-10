@@ -10,6 +10,7 @@
   justify-content: center;
   overflow: hidden;
   min-height: 350px;
+  contain: layout style;
 }
 
 .hero > div {
@@ -18,10 +19,10 @@
 }
 
 .hero > div > div {
-  background: white;
+  background: #fff;
   padding: 32px 20px;
   border-radius: 0.625rem;
-  box-shadow: 0 0.125rem 1.6875rem rgb(0 0 0 / 21%);
+  box-shadow: 0 0.125rem 1.6875rem rgba(0, 0, 0, 0.21);
   text-align: center;
   max-width: 470px;
 }
@@ -29,14 +30,15 @@
 .hero h2 {
   margin-bottom: 16px;
   font-weight: 700;
-  color: #42484D;
+  color: #42484d;
   font-size: 37px;
+  line-height: 1.2;
 }
 
 .hero p {
   font-size: 20px;
   line-height: 1.4;
-  color: #42484D;
+  color: #42484d;
 }
 
 .hero > div > div p:first-of-type {
@@ -47,11 +49,10 @@
   margin-bottom: 16px;
 }
 
-
 .hero .button {
   display: inline-block;
-  background: #D93A17;
-  color: white;
+  background: #d93a17;
+  color: #fff;
   padding: 12px 17px;
   border-radius: 25px;
   text-decoration: none;
@@ -59,6 +60,8 @@
   position: relative;
   z-index: 1;
   overflow: hidden;
+  transition: transform 0.2s ease;
+  will-change: transform;
 }
 
 .hero .button::before {
@@ -68,9 +71,10 @@
   left: 0;
   width: 0;
   height: 100%;
-  background: black;
+  background: #000;
   transition: width 0.3s ease;
   z-index: -1;
+  will-change: width;
 }
 
 .hero .button:hover::before {
@@ -89,9 +93,10 @@
   object-fit: cover;
   width: 100%;
   height: 100%;
+  will-change: auto;
 }
 
-/* Mobile responsiveness */
+/* Mobile responsiveness - optimized */
 @media (width <= 768px) {
   .hero {
     min-height: 300px;
@@ -104,19 +109,20 @@
   }
   
   .hero > div > div {
-    padding: 32px 20px;
+    padding: 28px 18px;
   }
   
   .hero h2 {
-    font-size: 37px;
+    font-size: 32px;
   }
   
   .hero p {
-    font-size: 20px;
+    font-size: 18px;
   }
   
   .hero .button {
-    font-size: 15px;
+    font-size: 14px;
+    padding: 10px 15px;
   }
 }
 
@@ -129,22 +135,6 @@
   .hero > div {
     max-width: 450px;
   }
-  
-  .hero > div > div {
-    padding: 32px 20px;
-  }
-  
-  .hero h2 {
-    font-size: 37px;
-  }
-  
-  .hero p {
-    font-size: 20px;
-  }
-  
-  .hero .button {
-    font-size: 15px;
-  }
 }
 
 @media (width >= 1025px) {
@@ -155,21 +145,5 @@
   
   .hero > div {
     max-width: 550px;
-  }
-  
-  .hero > div > div {
-    padding: 32px 20px;
-  }
-  
-  .hero h2 {
-    font-size: 37px;
-  }
-  
-  .hero p {
-    font-size: 20px;
-  }
-  
-  .hero .button {
-    font-size: 15px;
   }
 }
