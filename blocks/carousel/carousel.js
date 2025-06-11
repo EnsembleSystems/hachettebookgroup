@@ -138,9 +138,9 @@ export default async function decorate(block) {
       dot.classList.toggle('active', index === currentPage);
     });
 
-    // Update navigation buttons
-    prevButton.disabled = currentPage === 0;
-    nextButton.disabled = currentPage === totalPages - 1;
+    // Update navigation buttons visibility
+    prevButton.style.visibility = currentPage === 0 ? 'hidden' : 'visible';
+    nextButton.style.visibility = currentPage === totalPages - 1 ? 'hidden' : 'visible';
   }
 
   function goToPage(page) {
