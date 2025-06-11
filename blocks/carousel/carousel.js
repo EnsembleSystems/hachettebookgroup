@@ -1,150 +1,297 @@
-import { fetchPlaceholders } from '../../scripts/aem.js';
+export default async function decorate(block) {
+  // Extract the title from the first row
+  const titleRow = block.querySelector('div:first-child');
+  const title = titleRow ? titleRow.querySelector('h2')?.textContent || 'New Releases' : 'New Releases';
 
-function updateActiveSlide(slide) {
-  const block = slide.closest('.carousel');
-  const slideIndex = parseInt(slide.dataset.slideIndex, 10);
-  block.dataset.activeSlide = slideIndex;
+  // Extract all book items (skip the first row which contains the title)
+  const bookRows = Array.from(block.children).slice(1);
+  const books = [];
 
-  const slides = block.querySelectorAll('.carousel-slide');
+  bookRows.forEach((row) => {
+    const bookCell = row.querySelector('div:first-child');
+    if (bookCell) {
+      const link = bookCell.querySelector('a');
+      const picture = bookCell.querySelector('picture');
+      const img = bookCell.querySelector('img');
 
-  slides.forEach((aSlide, idx) => {
-    aSlide.setAttribute('aria-hidden', idx !== slideIndex);
-    aSlide.querySelectorAll('a').forEach((link) => {
-      if (idx !== slideIndex) {
-        link.setAttribute('tabindex', '-1');
-      } else {
-        link.removeAttribute('tabindex');
+      if (link && picture && img) {
+        // Clone and modify the image for lazy loading
+        const modifiedPicture = picture.cloneNode(true);
+        const modifiedImg = modifiedPicture.querySelector('img');
+        if (modifiedImg) {
+          modifiedImg.loading = 'lazy';
+          modifiedImg.decoding = 'async';
+        }
+
+        books.push({
+          href: link.getAttribute('href'),
+          title: link.getAttribute('title') || img.getAttribute('alt') || '',
+          alt: img.getAttribute('alt') || '',
+          picture: modifiedPicture,
+        });
+      }
+    }
+  });
+
+  // Clear the block and rebuild it
+  block.innerHTML = '';
+
+  // Create carousel structure with proper ARIA roles
+  const carouselContainer = document.createElement('div');
+  carouselContainer.className = 'carousel-container-inner';
+  carouselContainer.setAttribute('role', 'region');
+  carouselContainer.setAttribute('aria-roledescription', 'carousel');
+  carouselContainer.setAttribute('aria-label', `${title} Book Carousel`);
+
+  // Add title with proper heading level
+  const titleElement = document.createElement('h2');
+  titleElement.className = 'carousel-title';
+  titleElement.textContent = title;
+  titleElement.setAttribute('id', 'carousel-title');
+  carouselContainer.appendChild(titleElement);
+
+  // Create carousel wrapper
+  const carouselWrapper = document.createElement('div');
+  carouselWrapper.className = 'carousel-wrapper';
+
+  // Create carousel track container
+  const trackContainer = document.createElement('div');
+  trackContainer.className = 'carousel-track-container';
+  trackContainer.setAttribute('aria-live', 'polite');
+
+  // Create carousel track with will-change optimization
+  const carouselTrack = document.createElement('div');
+  carouselTrack.className = 'carousel-track';
+  carouselTrack.style.willChange = 'transform';
+
+  function getItemsPerPage() {
+    const width = window.innerWidth;
+    if (width >= 1280) return 10; // 2 rows × 5 columns
+    if (width >= 1024) return 8; // 2 rows × 4 columns
+    if (width >= 768) return 6; // 2 rows × 3 columns
+    if (width >= 540) return 2; // 1 row × 2 columns
+    return 1; // 1 row × 1 column for mobile
+  }
+
+  // Calculate total pages based on current viewport
+  let currentPage = 0;
+  let itemsPerPage = getItemsPerPage();
+  let totalPages = Math.ceil(books.length / itemsPerPage);
+
+  function createPages() {
+    // Clear existing pages
+    carouselTrack.innerHTML = '';
+
+    // Create pages
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
+      const page = document.createElement('div');
+      page.className = 'carousel-page';
+      page.setAttribute('role', 'group');
+      page.setAttribute('aria-label', `Page ${pageIndex + 1} of ${totalPages}`);
+
+      const startIndex = pageIndex * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, books.length);
+
+      // Add books to this page
+      for (let bookIndex = startIndex; bookIndex < endIndex; bookIndex += 1) {
+        const book = books[bookIndex];
+        const bookItem = document.createElement('div');
+        bookItem.className = 'carousel-item';
+        bookItem.setAttribute('data-index', bookIndex);
+        bookItem.setAttribute('role', 'group');
+        bookItem.setAttribute('aria-label', book.title);
+
+        const bookLink = document.createElement('a');
+        bookLink.href = book.href;
+        bookLink.title = book.title;
+        bookLink.setAttribute('aria-label', `View details for ${book.title}`);
+        bookLink.appendChild(book.picture);
+
+        bookItem.appendChild(bookLink);
+        page.appendChild(bookItem);
+      }
+
+      carouselTrack.appendChild(page);
+    }
+  }
+
+  // Create navigation arrows with improved accessibility
+  const prevButton = document.createElement('button');
+  prevButton.className = 'carousel-nav carousel-prev';
+  prevButton.innerHTML = '&#8249;';
+  prevButton.setAttribute('aria-label', 'Previous page');
+  prevButton.setAttribute('type', 'button');
+
+  const nextButton = document.createElement('button');
+  nextButton.className = 'carousel-nav carousel-next';
+  nextButton.innerHTML = '&#8250;';
+  nextButton.setAttribute('aria-label', 'Next page');
+  nextButton.setAttribute('type', 'button');
+
+  // Create pagination dots with improved accessibility
+  const dotsContainer = document.createElement('div');
+  dotsContainer.className = 'carousel-dots';
+  dotsContainer.setAttribute('role', 'tablist');
+  dotsContainer.setAttribute('aria-label', 'Carousel Navigation');
+
+  function createDots() {
+    dotsContainer.innerHTML = '';
+    const width = window.innerWidth;
+
+    if (width < 768) {
+      dotsContainer.style.display = 'none';
+      return;
+    }
+
+    dotsContainer.style.display = 'flex';
+
+    for (let i = 0; i < totalPages; i += 1) {
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot';
+      dot.setAttribute('role', 'tab');
+      dot.setAttribute('aria-selected', i === currentPage ? 'true' : 'false');
+      dot.setAttribute('aria-label', `Go to page ${i + 1}`);
+      dot.setAttribute('data-page', i);
+      if (i === currentPage) dot.classList.add('active');
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  function updateCarousel(skipTransition = false) {
+    if (skipTransition) {
+      carouselTrack.style.transition = 'none';
+    }
+
+    const translateX = -(currentPage * 100);
+    carouselTrack.style.transform = `translateX(${translateX}%)`;
+
+    if (skipTransition) {
+      requestAnimationFrame(() => {
+        carouselTrack.style.transition = '';
+      });
+    }
+
+    // Update ARIA attributes and states
+    const dots = dotsContainer.querySelectorAll('.carousel-dot');
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentPage);
+      dot.setAttribute('aria-selected', index === currentPage ? 'true' : 'false');
+    });
+
+    // Update navigation buttons
+    prevButton.style.visibility = currentPage === 0 ? 'hidden' : 'visible';
+    nextButton.style.visibility = currentPage === totalPages - 1 ? 'hidden' : 'visible';
+    prevButton.disabled = currentPage === 0;
+    nextButton.disabled = currentPage === totalPages - 1;
+
+    // Update live region
+    trackContainer.setAttribute('aria-label', `Showing page ${currentPage + 1} of ${totalPages}`);
+  }
+
+  function goToPage(page) {
+    if (page >= 0 && page < totalPages) {
+      currentPage = page;
+      updateCarousel();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages - 1) {
+      goToPage(currentPage + 1);
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      goToPage(currentPage - 1);
+    }
+  }
+
+  // Event listeners
+  nextButton.addEventListener('click', nextPage);
+  prevButton.addEventListener('click', prevPage);
+
+  dotsContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('carousel-dot')) {
+      const page = parseInt(e.target.getAttribute('data-page'), 10);
+      goToPage(page);
+    }
+  });
+
+  // Add keyboard navigation
+  carouselContainer.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        prevPage();
+        break;
+      case 'ArrowRight':
+        nextPage();
+        break;
+      case 'Home':
+        goToPage(0);
+        break;
+      case 'End':
+        goToPage(totalPages - 1);
+        break;
+      default:
+        break;
+    }
+  });
+
+  // Optimize resize handler with requestAnimationFrame
+  let resizeRAF;
+  const debouncedResize = () => {
+    if (resizeRAF) {
+      cancelAnimationFrame(resizeRAF);
+    }
+
+    resizeRAF = requestAnimationFrame(() => {
+      const newItemsPerPage = getItemsPerPage();
+      if (newItemsPerPage !== itemsPerPage) {
+        const firstVisibleItemIndex = currentPage * itemsPerPage;
+        itemsPerPage = newItemsPerPage;
+        totalPages = Math.ceil(books.length / itemsPerPage);
+        currentPage = Math.min(Math.floor(firstVisibleItemIndex / itemsPerPage), totalPages - 1);
+        createPages();
+        createDots();
+        updateCarousel(true);
       }
     });
-  });
+  };
 
-  const indicators = block.querySelectorAll('.carousel-slide-indicator');
-  indicators.forEach((indicator, idx) => {
-    if (idx !== slideIndex) {
-      indicator.querySelector('button').removeAttribute('disabled');
-    } else {
-      indicator.querySelector('button').setAttribute('disabled', 'true');
-    }
-  });
-}
+  // Replace the existing resize listener with the optimized one
+  window.addEventListener('resize', debouncedResize, { passive: true });
 
-export function showSlide(block, slideIndex = 0) {
-  const slides = block.querySelectorAll('.carousel-slide');
-  let realSlideIndex = slideIndex < 0 ? slides.length - 1 : slideIndex;
-  if (slideIndex >= slides.length) realSlideIndex = 0;
-  const activeSlide = slides[realSlideIndex];
+  // Assemble the carousel
+  trackContainer.appendChild(carouselTrack);
+  carouselWrapper.appendChild(trackContainer);
+  carouselWrapper.appendChild(prevButton);
+  carouselWrapper.appendChild(nextButton);
+  carouselContainer.appendChild(carouselWrapper);
+  carouselContainer.appendChild(dotsContainer);
 
-  activeSlide.querySelectorAll('a').forEach((link) => link.removeAttribute('tabindex'));
-  block.querySelector('.carousel-slides').scrollTo({
-    top: 0,
-    left: activeSlide.offsetLeft,
-    behavior: 'smooth',
-  });
-}
+  // Initialize
+  createPages();
+  createDots();
+  updateCarousel();
 
-function bindEvents(block) {
-  const slideIndicators = block.querySelector('.carousel-slide-indicators');
-  if (!slideIndicators) return;
+  // Add structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: books.map((book, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: book.href,
+      name: book.title,
+    })),
+  };
 
-  slideIndicators.querySelectorAll('button').forEach((button) => {
-    button.addEventListener('click', (e) => {
-      const slideIndicator = e.currentTarget.parentElement;
-      showSlide(block, parseInt(slideIndicator.dataset.targetSlide, 10));
-    });
-  });
+  const scriptTag = document.createElement('script');
+  scriptTag.type = 'application/ld+json';
+  scriptTag.textContent = JSON.stringify(structuredData);
+  carouselContainer.appendChild(scriptTag);
 
-  block.querySelector('.slide-prev').addEventListener('click', () => {
-    showSlide(block, parseInt(block.dataset.activeSlide, 10) - 1);
-  });
-  block.querySelector('.slide-next').addEventListener('click', () => {
-    showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
-  });
-
-  const slideObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) updateActiveSlide(entry.target);
-    });
-  }, { threshold: 0.5 });
-  block.querySelectorAll('.carousel-slide').forEach((slide) => {
-    slideObserver.observe(slide);
-  });
-}
-
-function createSlide(row, slideIndex, carouselId) {
-  const slide = document.createElement('li');
-  slide.dataset.slideIndex = slideIndex;
-  slide.setAttribute('id', `carousel-${carouselId}-slide-${slideIndex}`);
-  slide.classList.add('carousel-slide');
-
-  row.querySelectorAll(':scope > div').forEach((column, colIdx) => {
-    column.classList.add(`carousel-slide-${colIdx === 0 ? 'image' : 'content'}`);
-    slide.append(column);
-  });
-
-  const labeledBy = slide.querySelector('h1, h2, h3, h4, h5, h6');
-  if (labeledBy) {
-    slide.setAttribute('aria-labelledby', labeledBy.getAttribute('id'));
-  }
-
-  return slide;
-}
-
-let carouselId = 0;
-export default async function decorate(block) {
-  carouselId += 1;
-  block.setAttribute('id', `carousel-${carouselId}`);
-  const rows = block.querySelectorAll(':scope > div');
-  const isSingleSlide = rows.length < 2;
-
-  const placeholders = await fetchPlaceholders();
-
-  block.setAttribute('role', 'region');
-  block.setAttribute('aria-roledescription', placeholders.carousel || 'Carousel');
-
-  const container = document.createElement('div');
-  container.classList.add('carousel-slides-container');
-
-  const slidesWrapper = document.createElement('ul');
-  slidesWrapper.classList.add('carousel-slides');
-  block.prepend(slidesWrapper);
-
-  let slideIndicators;
-  if (!isSingleSlide) {
-    const slideIndicatorsNav = document.createElement('nav');
-    slideIndicatorsNav.setAttribute('aria-label', placeholders.carouselSlideControls || 'Carousel Slide Controls');
-    slideIndicators = document.createElement('ol');
-    slideIndicators.classList.add('carousel-slide-indicators');
-    slideIndicatorsNav.append(slideIndicators);
-    block.append(slideIndicatorsNav);
-
-    const slideNavButtons = document.createElement('div');
-    slideNavButtons.classList.add('carousel-navigation-buttons');
-    slideNavButtons.innerHTML = `
-      <button type="button" class= "slide-prev" aria-label="${placeholders.previousSlide || 'Previous Slide'}"></button>
-      <button type="button" class="slide-next" aria-label="${placeholders.nextSlide || 'Next Slide'}"></button>
-    `;
-
-    container.append(slideNavButtons);
-  }
-
-  rows.forEach((row, idx) => {
-    const slide = createSlide(row, idx, carouselId);
-    slidesWrapper.append(slide);
-
-    if (slideIndicators) {
-      const indicator = document.createElement('li');
-      indicator.classList.add('carousel-slide-indicator');
-      indicator.dataset.targetSlide = idx;
-      indicator.innerHTML = `<button type="button" aria-label="${placeholders.showSlide || 'Show Slide'} ${idx + 1} ${placeholders.of || 'of'} ${rows.length}"></button>`;
-      slideIndicators.append(indicator);
-    }
-    row.remove();
-  });
-
-  container.append(slidesWrapper);
-  block.prepend(container);
-
-  if (!isSingleSlide) {
-    bindEvents(block);
-  }
+  // Add everything to the block
+  block.appendChild(carouselContainer);
 }
