@@ -161,7 +161,7 @@ export default async function decorate(block) {
     if (skipTransition) {
       carouselTrack.style.transition = 'none';
     }
-    
+
     const translateX = -(currentPage * 100);
     carouselTrack.style.transform = `translateX(${translateX}%)`;
 
@@ -244,7 +244,7 @@ export default async function decorate(block) {
     if (resizeRAF) {
       cancelAnimationFrame(resizeRAF);
     }
-    
+
     resizeRAF = requestAnimationFrame(() => {
       const newItemsPerPage = getItemsPerPage();
       if (newItemsPerPage !== itemsPerPage) {
