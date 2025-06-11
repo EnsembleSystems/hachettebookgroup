@@ -82,11 +82,6 @@ export default async function decorate(block) {
   const dotsContainer = document.createElement('div');
   dotsContainer.className = 'carousel-dots';
 
-  // Calculate total pages based on current viewport
-  let currentPage = 0;
-  let itemsPerPage = getItemsPerPage();
-  let totalPages = Math.ceil(books.length / itemsPerPage);
-
   function getItemsPerPage() {
     const width = window.innerWidth;
     if (width >= 1280) return 10; // 2 rows × 5 columns
@@ -95,6 +90,11 @@ export default async function decorate(block) {
     if (width >= 540) return 2; // 1 row × 2 columns
     return 1; // 1 row × 1 column
   }
+
+  // Calculate total pages based on current viewport
+  let currentPage = 0;
+  let itemsPerPage = getItemsPerPage();
+  let totalPages = Math.ceil(books.length / itemsPerPage);
 
   function createDots() {
     dotsContainer.innerHTML = '';
