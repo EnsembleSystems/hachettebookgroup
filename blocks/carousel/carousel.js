@@ -42,26 +42,59 @@ export default async function decorate(block) {
   const carouselWrapper = document.createElement('div');
   carouselWrapper.className = 'carousel-wrapper';
 
+  // Create carousel track container
+  const trackContainer = document.createElement('div');
+  trackContainer.className = 'carousel-track-container';
+
   // Create carousel track
   const carouselTrack = document.createElement('div');
   carouselTrack.className = 'carousel-track';
 
-  // Add books to track
-  books.forEach((book, index) => {
-    const bookItem = document.createElement('div');
-    bookItem.className = 'carousel-item';
-    bookItem.setAttribute('data-index', index);
+  function getItemsPerPage() {
+    const width = window.innerWidth;
+    if (width >= 1280) return 10; // 2 rows × 5 columns
+    if (width >= 1024) return 8; // 2 rows × 4 columns
+    if (width >= 768) return 6; // 2 rows × 3 columns
+    if (width >= 540) return 2; // 1 row × 2 columns
+    return 1; // 1 row × 1 column for mobile
+  }
 
-    const bookLink = document.createElement('a');
-    bookLink.href = book.href;
-    bookLink.title = book.title;
-    bookLink.appendChild(book.picture);
+  // Calculate total pages based on current viewport
+  let currentPage = 0;
+  let itemsPerPage = getItemsPerPage();
+  let totalPages = Math.ceil(books.length / itemsPerPage);
 
-    bookItem.appendChild(bookLink);
-    carouselTrack.appendChild(bookItem);
-  });
+  function createPages() {
+    // Clear existing pages
+    carouselTrack.innerHTML = '';
 
-  carouselWrapper.appendChild(carouselTrack);
+    // Create pages
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
+      const page = document.createElement('div');
+      page.className = 'carousel-page';
+
+      const startIndex = pageIndex * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, books.length);
+
+      // Add books to this page
+      for (let bookIndex = startIndex; bookIndex < endIndex; bookIndex += 1) {
+        const book = books[bookIndex];
+        const bookItem = document.createElement('div');
+        bookItem.className = 'carousel-item';
+        bookItem.setAttribute('data-index', bookIndex);
+
+        const bookLink = document.createElement('a');
+        bookLink.href = book.href;
+        bookLink.title = book.title;
+        bookLink.appendChild(book.picture);
+
+        bookItem.appendChild(bookLink);
+        page.appendChild(bookItem);
+      }
+
+      carouselTrack.appendChild(page);
+    }
+  }
 
   // Create navigation arrows
   const prevButton = document.createElement('button');
@@ -74,27 +107,9 @@ export default async function decorate(block) {
   nextButton.innerHTML = '&#8250;';
   nextButton.setAttribute('aria-label', 'Next');
 
-  carouselWrapper.appendChild(prevButton);
-  carouselWrapper.appendChild(nextButton);
-  carouselContainer.appendChild(carouselWrapper);
-
   // Create pagination dots
   const dotsContainer = document.createElement('div');
   dotsContainer.className = 'carousel-dots';
-
-  function getItemsPerPage() {
-    const width = window.innerWidth;
-    if (width >= 1280) return 10; // 2 rows × 5 columns
-    if (width >= 1024) return 8; // 2 rows × 4 columns
-    if (width >= 768) return 6; // 2 rows × 3 columns
-    if (width >= 540) return 2; // 1 row × 2 columns
-    return 1; // 1 row × 1 column
-  }
-
-  // Calculate total pages based on current viewport
-  let currentPage = 0;
-  let itemsPerPage = getItemsPerPage();
-  let totalPages = Math.ceil(books.length / itemsPerPage);
 
   function createDots() {
     dotsContainer.innerHTML = '';
@@ -107,8 +122,6 @@ export default async function decorate(block) {
     }
 
     dotsContainer.style.display = 'flex';
-    itemsPerPage = getItemsPerPage();
-    totalPages = Math.ceil(books.length / itemsPerPage);
 
     for (let i = 0; i < totalPages; i += 1) {
       const dot = document.createElement('button');
@@ -120,17 +133,9 @@ export default async function decorate(block) {
   }
 
   function updateCarousel() {
-    const items = carouselTrack.querySelectorAll('.carousel-item');
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, books.length);
-
-    items.forEach((item, index) => {
-      if (index >= startIndex && index < endIndex) {
-        item.style.display = 'block';
-      } else {
-        item.style.display = 'none';
-      }
-    });
+    // Slide to the current page
+    const translateX = -(currentPage * 100);
+    carouselTrack.style.transform = `translateX(${translateX}%)`;
 
     // Update dots
     const dots = dotsContainer.querySelectorAll('.carousel-dot');
@@ -182,16 +187,25 @@ export default async function decorate(block) {
       if (newItemsPerPage !== itemsPerPage) {
         itemsPerPage = newItemsPerPage;
         totalPages = Math.ceil(books.length / itemsPerPage);
-        currentPage = Math.min(currentPage, totalPages - 1);
+        currentPage = 0; // Reset to first page when layout changes
+        createPages();
         createDots();
         updateCarousel();
       }
     }, 150);
   });
 
-  // Initialize
-  createDots();
+  // Assemble the carousel
+  trackContainer.appendChild(carouselTrack);
+  carouselWrapper.appendChild(trackContainer);
+  carouselWrapper.appendChild(prevButton);
+  carouselWrapper.appendChild(nextButton);
+  carouselContainer.appendChild(carouselWrapper);
   carouselContainer.appendChild(dotsContainer);
+
+  // Initialize
+  createPages();
+  createDots();
   updateCarousel();
 
   // Add everything to the block
