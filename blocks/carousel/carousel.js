@@ -15,11 +15,19 @@ export default async function decorate(block) {
       const img = bookCell.querySelector('img');
 
       if (link && picture && img) {
+        // Clone and modify the image for lazy loading
+        const modifiedPicture = picture.cloneNode(true);
+        const modifiedImg = modifiedPicture.querySelector('img');
+        if (modifiedImg) {
+          modifiedImg.loading = 'lazy';
+          modifiedImg.decoding = 'async';
+        }
+
         books.push({
           href: link.getAttribute('href'),
           title: link.getAttribute('title') || img.getAttribute('alt') || '',
           alt: img.getAttribute('alt') || '',
-          picture: picture.cloneNode(true),
+          picture: modifiedPicture,
         });
       }
     }
@@ -28,14 +36,18 @@ export default async function decorate(block) {
   // Clear the block and rebuild it
   block.innerHTML = '';
 
-  // Create carousel structure
+  // Create carousel structure with proper ARIA roles
   const carouselContainer = document.createElement('div');
   carouselContainer.className = 'carousel-container-inner';
+  carouselContainer.setAttribute('role', 'region');
+  carouselContainer.setAttribute('aria-roledescription', 'carousel');
+  carouselContainer.setAttribute('aria-label', `${title} Book Carousel`);
 
-  // Add title
+  // Add title with proper heading level
   const titleElement = document.createElement('h2');
   titleElement.className = 'carousel-title';
   titleElement.textContent = title;
+  titleElement.setAttribute('id', 'carousel-title');
   carouselContainer.appendChild(titleElement);
 
   // Create carousel wrapper
@@ -45,10 +57,12 @@ export default async function decorate(block) {
   // Create carousel track container
   const trackContainer = document.createElement('div');
   trackContainer.className = 'carousel-track-container';
+  trackContainer.setAttribute('aria-live', 'polite');
 
-  // Create carousel track
+  // Create carousel track with will-change optimization
   const carouselTrack = document.createElement('div');
   carouselTrack.className = 'carousel-track';
+  carouselTrack.style.willChange = 'transform';
 
   function getItemsPerPage() {
     const width = window.innerWidth;
@@ -72,6 +86,8 @@ export default async function decorate(block) {
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
       const page = document.createElement('div');
       page.className = 'carousel-page';
+      page.setAttribute('role', 'group');
+      page.setAttribute('aria-label', `Page ${pageIndex + 1} of ${totalPages}`);
 
       const startIndex = pageIndex * itemsPerPage;
       const endIndex = Math.min(startIndex + itemsPerPage, books.length);
@@ -82,10 +98,13 @@ export default async function decorate(block) {
         const bookItem = document.createElement('div');
         bookItem.className = 'carousel-item';
         bookItem.setAttribute('data-index', bookIndex);
+        bookItem.setAttribute('role', 'group');
+        bookItem.setAttribute('aria-label', book.title);
 
         const bookLink = document.createElement('a');
         bookLink.href = book.href;
         bookLink.title = book.title;
+        bookLink.setAttribute('aria-label', `View details for ${book.title}`);
         bookLink.appendChild(book.picture);
 
         bookItem.appendChild(bookLink);
@@ -96,26 +115,29 @@ export default async function decorate(block) {
     }
   }
 
-  // Create navigation arrows
+  // Create navigation arrows with improved accessibility
   const prevButton = document.createElement('button');
   prevButton.className = 'carousel-nav carousel-prev';
   prevButton.innerHTML = '&#8249;';
-  prevButton.setAttribute('aria-label', 'Previous');
+  prevButton.setAttribute('aria-label', 'Previous page');
+  prevButton.setAttribute('type', 'button');
 
   const nextButton = document.createElement('button');
   nextButton.className = 'carousel-nav carousel-next';
   nextButton.innerHTML = '&#8250;';
-  nextButton.setAttribute('aria-label', 'Next');
+  nextButton.setAttribute('aria-label', 'Next page');
+  nextButton.setAttribute('type', 'button');
 
-  // Create pagination dots
+  // Create pagination dots with improved accessibility
   const dotsContainer = document.createElement('div');
   dotsContainer.className = 'carousel-dots';
+  dotsContainer.setAttribute('role', 'tablist');
+  dotsContainer.setAttribute('aria-label', 'Carousel Navigation');
 
   function createDots() {
     dotsContainer.innerHTML = '';
     const width = window.innerWidth;
 
-    // Don't show dots for mobile sizes
     if (width < 768) {
       dotsContainer.style.display = 'none';
       return;
@@ -126,6 +148,9 @@ export default async function decorate(block) {
     for (let i = 0; i < totalPages; i += 1) {
       const dot = document.createElement('button');
       dot.className = 'carousel-dot';
+      dot.setAttribute('role', 'tab');
+      dot.setAttribute('aria-selected', i === currentPage ? 'true' : 'false');
+      dot.setAttribute('aria-label', `Go to page ${i + 1}`);
       dot.setAttribute('data-page', i);
       if (i === currentPage) dot.classList.add('active');
       dotsContainer.appendChild(dot);
@@ -133,30 +158,34 @@ export default async function decorate(block) {
   }
 
   function updateCarousel(skipTransition = false) {
-    // Temporarily disable transition if requested
     if (skipTransition) {
       carouselTrack.style.transition = 'none';
     }
-    // Slide to the current page
+    
     const translateX = -(currentPage * 100);
     carouselTrack.style.transform = `translateX(${translateX}%)`;
 
-    // Re-enable transition after transform is applied
     if (skipTransition) {
       requestAnimationFrame(() => {
         carouselTrack.style.transition = '';
       });
     }
 
-    // Update dots
+    // Update ARIA attributes and states
     const dots = dotsContainer.querySelectorAll('.carousel-dot');
     dots.forEach((dot, index) => {
       dot.classList.toggle('active', index === currentPage);
+      dot.setAttribute('aria-selected', index === currentPage ? 'true' : 'false');
     });
 
-    // Update navigation buttons visibility
+    // Update navigation buttons
     prevButton.style.visibility = currentPage === 0 ? 'hidden' : 'visible';
     nextButton.style.visibility = currentPage === totalPages - 1 ? 'hidden' : 'visible';
+    prevButton.disabled = currentPage === 0;
+    nextButton.disabled = currentPage === totalPages - 1;
+
+    // Update live region
+    trackContainer.setAttribute('aria-label', `Showing page ${currentPage + 1} of ${totalPages}`);
   }
 
   function goToPage(page) {
@@ -189,28 +218,49 @@ export default async function decorate(block) {
     }
   });
 
-  // Handle resize
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
+  // Add keyboard navigation
+  carouselContainer.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        prevPage();
+        break;
+      case 'ArrowRight':
+        nextPage();
+        break;
+      case 'Home':
+        goToPage(0);
+        break;
+      case 'End':
+        goToPage(totalPages - 1);
+        break;
+      default:
+        break;
+    }
+  });
+
+  // Optimize resize handler with requestAnimationFrame
+  let resizeRAF;
+  const debouncedResize = () => {
+    if (resizeRAF) {
+      cancelAnimationFrame(resizeRAF);
+    }
+    
+    resizeRAF = requestAnimationFrame(() => {
       const newItemsPerPage = getItemsPerPage();
       if (newItemsPerPage !== itemsPerPage) {
-        // Calculate the first visible item index
         const firstVisibleItemIndex = currentPage * itemsPerPage;
-        // Update items per page
         itemsPerPage = newItemsPerPage;
         totalPages = Math.ceil(books.length / itemsPerPage);
-        // Calculate new page based on first visible item
-        currentPage = Math.floor(firstVisibleItemIndex / itemsPerPage);
-        // Ensure currentPage doesn't exceed the new total pages
-        currentPage = Math.min(currentPage, totalPages - 1);
+        currentPage = Math.min(Math.floor(firstVisibleItemIndex / itemsPerPage), totalPages - 1);
         createPages();
         createDots();
-        updateCarousel(true); // Skip transition during resize
+        updateCarousel(true);
       }
-    }, 150);
-  });
+    });
+  };
+
+  // Replace the existing resize listener with the optimized one
+  window.addEventListener('resize', debouncedResize, { passive: true });
 
   // Assemble the carousel
   trackContainer.appendChild(carouselTrack);
@@ -224,6 +274,23 @@ export default async function decorate(block) {
   createPages();
   createDots();
   updateCarousel();
+
+  // Add structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: books.map((book, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: book.href,
+      name: book.title,
+    })),
+  };
+
+  const scriptTag = document.createElement('script');
+  scriptTag.type = 'application/ld+json';
+  scriptTag.textContent = JSON.stringify(structuredData);
+  carouselContainer.appendChild(scriptTag);
 
   // Add everything to the block
   block.appendChild(carouselContainer);
