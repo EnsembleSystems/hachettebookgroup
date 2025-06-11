@@ -1,5 +1,9 @@
-/* Carousel Container */
-.carousel-container {
+.section.carousel-container {
+  padding: 0 20px;
+}
+
+/* Carousel Container  Inner*/
+.carousel-container-inner {
   position: relative;
   width: 100%;
   margin: 0 auto;
@@ -167,6 +171,10 @@
 
 /* Below 1280px: 2 rows, 4 columns */
 @media (1024px <= width < 1280px) {
+  .carousel-container-inner {
+    padding: 40px 20px;
+  }
+
   .carousel-wrapper,
   .carousel-track-container {
     max-width: 1200px;

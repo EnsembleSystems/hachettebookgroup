@@ -30,7 +30,7 @@ export default async function decorate(block) {
 
   // Create carousel structure
   const carouselContainer = document.createElement('div');
-  carouselContainer.className = 'carousel-container';
+  carouselContainer.className = 'carousel-container-inner';
 
   // Add title
   const titleElement = document.createElement('h2');
