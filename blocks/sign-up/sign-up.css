@@ -164,6 +164,7 @@
         border-radius: 624.9375rem;
         padding: 12px 24px;
         margin-top: 20px;
-        border: 1px solid hsl(197deg 22% 86%)
+        border: 1px solid hsl(197deg 22% 86%);
+        width: 100%;
     }
 }
