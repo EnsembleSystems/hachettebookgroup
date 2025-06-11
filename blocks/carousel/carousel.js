@@ -132,10 +132,21 @@ export default async function decorate(block) {
     }
   }
 
-  function updateCarousel() {
+  function updateCarousel(skipTransition = false) {
+    // Temporarily disable transition if requested
+    if (skipTransition) {
+      carouselTrack.style.transition = 'none';
+    }
     // Slide to the current page
     const translateX = -(currentPage * 100);
     carouselTrack.style.transform = `translateX(${translateX}%)`;
+
+    // Re-enable transition after transform is applied
+    if (skipTransition) {
+      requestAnimationFrame(() => {
+        carouselTrack.style.transition = '';
+      });
+    }
 
     // Update dots
     const dots = dotsContainer.querySelectorAll('.carousel-dot');
@@ -185,12 +196,18 @@ export default async function decorate(block) {
     resizeTimeout = setTimeout(() => {
       const newItemsPerPage = getItemsPerPage();
       if (newItemsPerPage !== itemsPerPage) {
+        // Calculate the first visible item index
+        const firstVisibleItemIndex = currentPage * itemsPerPage;
+        // Update items per page
         itemsPerPage = newItemsPerPage;
         totalPages = Math.ceil(books.length / itemsPerPage);
-        currentPage = 0; // Reset to first page when layout changes
+        // Calculate new page based on first visible item
+        currentPage = Math.floor(firstVisibleItemIndex / itemsPerPage);
+        // Ensure currentPage doesn't exceed the new total pages
+        currentPage = Math.min(currentPage, totalPages - 1);
         createPages();
         createDots();
-        updateCarousel();
+        updateCarousel(true); // Skip transition during resize
       }
     }, 150);
   });
