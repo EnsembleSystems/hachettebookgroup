@@ -57,6 +57,8 @@
 
 .sign-up .email-input:focus {
     border-bottom-color: #e74c3c;
+    outline: 2px solid #e74c3c;
+    outline-offset: 2px;
 }
 
 .sign-up .email-input::placeholder {
@@ -72,13 +74,31 @@
     background: transparent;
     font-weight: 600;
     flex-shrink: 0;
+    padding: 8px 12px;
+    min-height: 44px;
+    min-width: 44px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sign-up .sign-up-button:hover {
+    background-color: rgb(231 76 60 / 10%);
+}
+
+.sign-up .sign-up-button:focus {
+    outline: 2px solid #e74c3c;
+    outline-offset: 2px;
+}
+
+.sign-up .sign-up-button:active {
+    background-color: rgb(231 76 60 / 20%);
 }
 
 .sign-up .terms-conditions {
     font-size: 13px;
     line-height: 1.4;
     color: #42484d;
-    max-width: 514px
+    max-width: 514px;
 }
 
 .sign-up .terms-conditions a {
@@ -90,6 +110,19 @@
     text-decoration: underline;
 }
 
+.sign-up .terms-conditions a:focus {
+    outline: 2px solid #e74c3c;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .sign-up .email-input,
+    .sign-up .sign-up-button {
+        transition: none;
+    }
+}
 
 @media (width <= 1100px) {
     .sign-up-wrapper {
