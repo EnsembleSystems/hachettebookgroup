@@ -1,0 +1,132 @@
+.sign-up-wrapper {
+    margin-bottom: 3rem;
+    margin-top: 3rem;
+}
+
+.sign-up.block {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: .5rem 1.25rem 2rem 2rem;
+    border-bottom: 15px solid #d4dee2;
+    border-left: 15px solid #d4dee2;
+}
+
+.sign-up .sign-up-content {
+    display: flex;
+    align-items: flex-end;
+    gap: 60px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.sign-up .sign-up-heading {
+    flex: 0 0 25%;
+    min-width: 250px;
+}
+
+.sign-up .sign-up-heading h2 {
+    font-size: 27px;
+    font-weight: bold;
+    color: #04090B;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sign-up .sign-up-form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 2px solid #ccc;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.sign-up .email-input {
+    flex: 1;
+    font-size: 15px;
+    padding: 12px 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    transition: border-color 0.3s ease;
+    color: hsl(207deg 8% 28%);
+    min-width: 0;
+}
+
+.sign-up .email-input:focus {
+    border-bottom-color: #e74c3c;
+}
+
+.sign-up .email-input::placeholder {
+    color: hsl(207deg 8% 28%);
+}
+
+.sign-up .sign-up-button {
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    color: hsl(11deg 81% 47%);
+    font-size: 15px;
+    background: transparent;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.sign-up .terms-conditions {
+    font-size: 13px;
+    line-height: 1.4;
+    color: #42484d;
+    max-width: 514px
+}
+
+.sign-up .terms-conditions a {
+    text-decoration-style: dotted;
+    color: #42484d;
+}
+
+.sign-up .terms-conditions a:hover {
+    text-decoration: underline;
+}
+
+
+@media (width <= 1100px) {
+    .sign-up-wrapper {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+
+/* Mobile styles - 960px and below */
+@media (width <= 960px) {
+    .sign-up-wrapper {
+        margin-bottom: 1.875rem;
+        margin-top: 1.875rem;
+    }
+
+    .sign-up .sign-up-content {
+        flex-direction: column;
+        gap: 30px;
+        margin-bottom: 30px;
+        align-items: flex-start;
+    }
+
+    .sign-up .sign-up-heading {
+        min-width: auto;
+    }
+
+    .sign-up .sign-up-heading h2 {
+        font-size: 2rem;
+    }
+
+    .sign-up .sign-up-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .sign-up .sign-up-button {
+        align-self: flex-start;
+    }
+}
