@@ -18,12 +18,6 @@ export default function decorate(block) {
     }
   }
 
-  // Create form element for better semantics and accessibility
-  const form = document.createElement('form');
-  form.className = 'sign-up-form';
-  form.setAttribute('role', 'form');
-  form.setAttribute('aria-labelledby', 'signup-heading');
-
   // Add ID to heading for aria-labelledby reference
   const heading = headingSection.querySelector('h2');
   if (heading) {
@@ -42,21 +36,6 @@ export default function decorate(block) {
   emailInput.setAttribute('aria-describedby', 'terms-info');
   emailInput.setAttribute('autocomplete', 'email');
   emailInput.setAttribute('spellcheck', 'false');
-
-  // Create sign-up button with proper accessibility
-  const signUpButton = document.createElement('button');
-  signUpButton.className = 'sign-up-button';
-  signUpButton.textContent = 'Sign Up';
-  signUpButton.type = 'submit';
-  signUpButton.setAttribute('aria-describedby', 'terms-info');
-
-  // Add form elements to form
-  form.appendChild(emailInput);
-  form.appendChild(signUpButton);
-
-  // Add sections to content wrapper
-  contentWrapper.appendChild(headingSection);
-  contentWrapper.appendChild(form);
 
   // Create terms and conditions section with proper accessibility
   const termsSection = document.createElement('div');
@@ -84,10 +63,53 @@ export default function decorate(block) {
     }
   }
 
-  // Clear the block and add new structure
-  block.innerHTML = '';
-  block.appendChild(contentWrapper);
-  block.appendChild(termsSection);
+  // Create sign-up button with proper accessibility
+  const signUpButton = document.createElement('button');
+  signUpButton.className = 'sign-up-button';
+  signUpButton.textContent = 'Sign Up';
+  signUpButton.type = 'submit';
+  signUpButton.setAttribute('aria-describedby', 'terms-info');
+
+  // Create container for mobile layout
+  const mobileContainer = document.createElement('div');
+  mobileContainer.className = 'mobile-container';
+
+  // Function to reorganize layout based on viewport
+  function reorganizeLayout() {
+    const isMobile = window.innerWidth <= 960;
+
+    if (isMobile) {
+      // Mobile layout: heading, email input, terms, button
+      block.innerHTML = '';
+      block.appendChild(headingSection);
+      block.appendChild(emailInput);
+      block.appendChild(termsSection);
+      block.appendChild(signUpButton);
+    } else {
+      // Desktop layout: heading and form side by side, terms below
+      const form = document.createElement('form');
+      form.className = 'sign-up-form';
+      form.setAttribute('role', 'form');
+      form.setAttribute('aria-labelledby', 'signup-heading');
+
+      form.appendChild(emailInput);
+      form.appendChild(signUpButton);
+
+      contentWrapper.innerHTML = '';
+      contentWrapper.appendChild(headingSection);
+      contentWrapper.appendChild(form);
+
+      block.innerHTML = '';
+      block.appendChild(contentWrapper);
+      block.appendChild(termsSection);
+    }
+  }
+
+  // Initial layout
+  reorganizeLayout();
+
+  // Listen for viewport changes
+  window.addEventListener('resize', reorganizeLayout);
 
   // Ensure the component is announced to screen readers
   block.setAttribute('role', 'region');

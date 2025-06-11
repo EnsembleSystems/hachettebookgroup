@@ -55,12 +55,6 @@
     min-width: 0;
 }
 
-.sign-up .email-input:focus {
-    border-bottom-color: #e74c3c;
-    outline: 2px solid #e74c3c;
-    outline-offset: 2px;
-}
-
 .sign-up .email-input::placeholder {
     color: hsl(207deg 8% 28%);
 }
@@ -81,18 +75,7 @@
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.sign-up .sign-up-button:hover {
-    background-color: rgb(231 76 60 / 10%);
-}
 
-.sign-up .sign-up-button:focus {
-    outline: 2px solid #e74c3c;
-    outline-offset: 2px;
-}
-
-.sign-up .sign-up-button:active {
-    background-color: rgb(231 76 60 / 20%);
-}
 
 .sign-up .terms-conditions {
     font-size: 13px;
@@ -140,26 +123,47 @@
 
     .sign-up .sign-up-content {
         flex-direction: column;
-        gap: 30px;
-        margin-bottom: 30px;
+        gap: 20px;
+        margin-bottom: 20px;
         align-items: flex-start;
     }
 
     .sign-up .sign-up-heading {
         min-width: auto;
+        width: 100%;
+        margin-bottom: 0;
     }
 
     .sign-up .sign-up-heading h2 {
         font-size: 2rem;
+        margin-bottom: 20px;
     }
 
     .sign-up .sign-up-form {
         flex-direction: column;
         align-items: stretch;
-        gap: 15px;
+        gap: 0;
+        width: 100%;
+        border-bottom: none;
+        margin-bottom: 20px;
+    }
+
+    .sign-up .email-input {
+        width: 100%;
+        border-bottom: 2px solid #ccc;
+        margin-bottom: 20px;
+    }
+
+    .sign-up .terms-conditions {
+        margin-bottom: 20px;
+        max-width: unset
     }
 
     .sign-up .sign-up-button {
         align-self: flex-start;
+        border-radius: 624.9375rem;
+        padding: 12px 24px;
+        margin-top: 20px;
+        border: 1px solid hsl(197deg 22% 86%)
     }
 }
