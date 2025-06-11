@@ -2,7 +2,7 @@
   padding: 0 20px;
 }
 
-/* Carousel Container  Inner*/
+/* Carousel Container  Inner */
 .carousel-container-inner {
   position: relative;
   width: 100%;
@@ -91,13 +91,13 @@
   top: 50%;
   transform: translateY(-50%);
   background: rgb(255 255 255 / 90%);
-  border: 2px solid #ddd;
+  border: 1px solid #d4dfe3;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #D93A17;
+  color: hsl(11deg 81% 47%);
   cursor: pointer;
   z-index: 10;
   transition: all 0.3s ease;
