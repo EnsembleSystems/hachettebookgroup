@@ -1,5 +1,6 @@
 .section.cards-container {
     background-color: hsl(202deg 50% 97%);
+    padding: 0 20px;
 }
 
 .section.cards-container .default-content-wrapper {
@@ -77,6 +78,35 @@
   text-decoration: none;
 }
 
+.section.cards-container .default-content-wrapper p.button-container {
+  text-transform: capitalize;
+  background-color: #d3dfe3;
+  display: inline;
+  padding: 15px;
+  border-radius: 624.9375rem
+}
+
+.section.cards-container .default-content-wrapper p.button-container a {
+  text-decoration: none;
+  color: #42484d;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.section.cards-container .default-content-wrapper p.button-container a::after {
+  content: "→";
+  margin-left: 5px;
+  display: inline-block;
+}
+
+.section.cards-container .default-content-wrapper p.button-container a:hover {
+  text-decoration: underline;
+}
+
+.section.cards-container .default-content-wrapper p.button-container a:hover::after {
+  text-decoration-line: none;
+}
 
 @media (width < 1024px) {
   .cards > ul {
@@ -94,3 +124,5 @@
     grid-template-columns: repeat(1, 1fr);
   }
 }
+
+
