@@ -33,18 +33,46 @@
     align-items: center;
     border-radius: 50%;
     padding: 10px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
-.discover-more p strong {
-    text-align: center;
+.discover-more p::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #d93a17;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+}
+
+.discover-more p:hover::before {
+    transform: translateX(0);
 }
 
 .discover-more p a {
     text-decoration: none;
     color: #d94a17;
     font-size: 17.6px;
+    transition: color 0.3s ease;
 }
 
+.discover-more p:hover {
+    border-color: #d93a17;
+}
+
+.discover-more p:hover a {
+    color: white;
+}
+
+.discover-more p strong {
+    text-align: center;
+}
 
 @media (width < 1247px) {
     .section.discover-more-container {
