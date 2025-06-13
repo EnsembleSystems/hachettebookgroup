@@ -103,4 +103,86 @@ export default async function decorate(block) {
       </div>
     </footer>
   `;
+
+  // Accordion logic for mobile (≤960px)
+  function setupFooterAccordion() {
+    const cols = block.querySelectorAll('.footer-links-col');
+
+    cols.forEach((col) => {
+      const h3 = col.querySelector('h3');
+      if (!h3) return;
+
+      // Set initial ARIA attributes
+      h3.setAttribute('role', 'button');
+      h3.setAttribute('aria-expanded', 'false');
+      h3.setAttribute('aria-controls', `footer-accordion-${Array.from(cols).indexOf(col)}`);
+
+      const ul = col.querySelector('ul');
+      if (ul) {
+        ul.id = `footer-accordion-${Array.from(cols).indexOf(col)}`;
+        ul.setAttribute('aria-hidden', 'true');
+      }
+
+      // Remove any existing click handlers
+      h3.onclick = null;
+
+      // Add click handler
+      h3.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isExpanded = col.classList.contains('active');
+
+        // Toggle current accordion
+        col.classList.toggle('active');
+        h3.setAttribute('aria-expanded', !isExpanded);
+        if (ul) {
+          ul.setAttribute('aria-hidden', isExpanded);
+        }
+      });
+
+      // Initialize state
+      col.classList.remove('active');
+    });
+  }
+
+  // Run on load and on resize
+  function handleResize() {
+    const isMobile = window.innerWidth <= 960;
+    const cols = block.querySelectorAll('.footer-links-col');
+
+    cols.forEach((col) => {
+      const h3 = col.querySelector('h3');
+      const ul = col.querySelector('ul');
+
+      if (isMobile) {
+        // Mobile: accordion behavior
+        if (h3) {
+          h3.setAttribute('role', 'button');
+          h3.setAttribute('aria-expanded', 'false');
+        }
+        if (ul) {
+          ul.setAttribute('aria-hidden', 'true');
+        }
+      } else {
+        // Desktop: no accordion behavior
+        col.classList.remove('active');
+        if (h3) {
+          h3.removeAttribute('role');
+          h3.removeAttribute('aria-expanded');
+        }
+        if (ul) {
+          ul.removeAttribute('aria-hidden');
+        }
+      }
+    });
+  }
+
+  // Initial setup
+  setupFooterAccordion();
+
+  // Add resize listener with debounce
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(handleResize, 250);
+  });
 }
