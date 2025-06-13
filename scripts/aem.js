@@ -261,7 +261,12 @@ function createOptimizedPicture(
   src,
   alt = '',
   eager = false,
-  breakpoints = [{ media: '(min-width: 600px)', width: '2000' }, { width: '750' }],
+  breakpoints = [
+    { media: '(min-width: 1200px)', width: '2000' },
+    { media: '(min-width: 768px)', width: '1200' },
+    { media: '(min-width: 480px)', width: '750' },
+    { width: '480' },
+  ],
 ) {
   const url = !src.startsWith('http') ? new URL(src, window.location.href) : new URL(src);
   const picture = document.createElement('picture');
@@ -288,6 +293,18 @@ function createOptimizedPicture(
       const img = document.createElement('img');
       img.setAttribute('loading', eager ? 'eager' : 'lazy');
       img.setAttribute('alt', alt);
+      img.setAttribute('decoding', 'async');
+      if (eager) {
+        img.setAttribute('fetchpriority', 'high');
+      }
+
+      // Set width and height based on the smallest breakpoint
+      const smallestWidth = breakpoints[breakpoints.length - 1].width;
+      img.setAttribute('width', smallestWidth);
+      // Calculate height based on aspect ratio (assuming 16:9)
+      const height = Math.round((parseInt(smallestWidth, 10) * 9) / 16);
+      img.setAttribute('height', height.toString());
+
       picture.appendChild(img);
       img.setAttribute('src', `${origin}${pathname}?width=${br.width}&format=${ext}&optimize=medium`);
     }

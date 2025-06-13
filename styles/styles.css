@@ -113,3 +113,15 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--heading-font-family);
   line-height: 1.108;
 }
+
+main img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+main picture {
+  display: block;
+  width: 100%;
+}
