@@ -1,4 +1,4 @@
-export default async function decorate(block) {
+export default function decorate(block) {
   // Extract the title from the first row
   const titleRow = block.querySelector('div:first-child');
   const title = titleRow ? titleRow.querySelector('h2')?.textContent || 'New Releases' : 'New Releases';
@@ -8,26 +8,26 @@ export default async function decorate(block) {
   const books = [];
 
   bookRows.forEach((row) => {
-    const bookCell = row.querySelector('div:first-child');
-    if (bookCell) {
-      const link = bookCell.querySelector('a');
-      const picture = bookCell.querySelector('picture');
-      const img = bookCell.querySelector('img');
+    const paragraphs = row.querySelectorAll('p');
+    if (paragraphs.length >= 2) {
+      const imageLink = paragraphs[0].querySelector('a');
+      const pageLink = paragraphs[1].querySelector('a');
 
-      if (link && picture && img) {
-        // Clone and modify the image for lazy loading
-        const modifiedPicture = picture.cloneNode(true);
-        const modifiedImg = modifiedPicture.querySelector('img');
-        if (modifiedImg) {
-          modifiedImg.loading = 'lazy';
-          modifiedImg.decoding = 'async';
-        }
+      if (imageLink && pageLink) {
+        const img = document.createElement('img');
+        img.src = imageLink.getAttribute('href');
+        img.alt = imageLink.getAttribute('title') || '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+
+        const link = document.createElement('a');
+        link.href = pageLink.getAttribute('href');
+        link.title = pageLink.getAttribute('title') || '';
+        link.appendChild(img);
 
         books.push({
-          href: link.getAttribute('href'),
-          title: link.getAttribute('title') || img.getAttribute('alt') || '',
-          alt: img.getAttribute('alt') || '',
-          picture: modifiedPicture,
+          element: link,
+          title: pageLink.getAttribute('title') || '',
         });
       }
     }
@@ -100,14 +100,7 @@ export default async function decorate(block) {
         bookItem.setAttribute('data-index', bookIndex);
         bookItem.setAttribute('role', 'group');
         bookItem.setAttribute('aria-label', book.title);
-
-        const bookLink = document.createElement('a');
-        bookLink.href = book.href;
-        bookLink.title = book.title;
-        bookLink.setAttribute('aria-label', `View details for ${book.title}`);
-        bookLink.appendChild(book.picture);
-
-        bookItem.appendChild(bookLink);
+        bookItem.appendChild(book.element.cloneNode(true));
         page.appendChild(bookItem);
       }
 
@@ -282,7 +275,7 @@ export default async function decorate(block) {
     itemListElement: books.map((book, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      url: book.href,
+      url: book.element.href,
       name: book.title,
     })),
   };
