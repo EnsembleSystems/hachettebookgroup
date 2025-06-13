@@ -297,6 +297,14 @@ function createOptimizedPicture(
       if (eager) {
         img.setAttribute('fetchpriority', 'high');
       }
+
+      // Set width and height based on the smallest breakpoint
+      const smallestWidth = breakpoints[breakpoints.length - 1].width;
+      img.setAttribute('width', smallestWidth);
+      // Calculate height based on aspect ratio (assuming 16:9)
+      const height = Math.round((parseInt(smallestWidth, 10) * 9) / 16);
+      img.setAttribute('height', height.toString());
+
       picture.appendChild(img);
       img.setAttribute('src', `${origin}${pathname}?width=${br.width}&format=${ext}&optimize=medium`);
     }
