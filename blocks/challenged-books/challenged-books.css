@@ -1,0 +1,22 @@
+.challenged-books.block > div {
+    display: flex;
+    align-items: flex-end;
+}
+
+.challenged-books.block > div > div {
+    color: #04090B;
+}
+
+.challenged-books.block > div > div > h2{
+    font-size: 32px;
+}
+
+.challenged-books.block > div > div > p{
+    font-size: 17px;
+}
+
+.challenged-books.block div:nth-child(2){
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}

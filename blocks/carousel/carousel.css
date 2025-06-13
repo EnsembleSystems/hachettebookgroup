@@ -13,7 +13,7 @@
 /* Carousel Title */
 .carousel-title {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 32px;
   font-weight: bold;
   color: #333;
   padding-bottom: 20px;
@@ -274,7 +274,7 @@
   }
 
   .carousel-title {
-    font-size: 2rem;
+    font-size: 32px;
     margin-bottom: 20px;
     padding-bottom: 10px;
   }
