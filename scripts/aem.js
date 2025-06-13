@@ -250,23 +250,6 @@ function getMetadata(name, doc = document) {
 }
 
 /**
- * Optimizes image URL for AWS S3
- * @param {string} src Original image URL
- * @param {string} width Desired width
- * @param {string} format Image format
- * @returns {string} Optimized image URL
- */
-function getOptimizedImageUrl(src, width, format = 'webp') {
-  // Extract the image path from the URL
-  const url = new URL(src);
-  const imagePath = url.pathname;
-  // AWS S3 bucket URL (replace with your bucket URL)
-  const s3BucketUrl = 'https://your-bucket-name.s3.amazonaws.com';
-  // Create optimized URL with AWS CloudFront
-  return `${s3BucketUrl}${imagePath}?width=${width}&format=${format}&optimize=medium`;
-}
-
-/**
  * Returns a picture element with webp and fallbacks
  * @param {string} src The image URL
  * @param {string} [alt] The image alternative text
@@ -278,16 +261,11 @@ function createOptimizedPicture(
   src,
   alt = '',
   eager = false,
-  breakpoints = [
-    { media: '(min-width: 1200px)', width: '2000' },
-    { media: '(min-width: 768px)', width: '1200' },
-    { media: '(min-width: 480px)', width: '750' },
-    { width: '480' },
-  ],
+  breakpoints = [{ media: '(min-width: 600px)', width: '2000' }, { width: '750' }],
 ) {
   const url = !src.startsWith('http') ? new URL(src, window.location.href) : new URL(src);
   const picture = document.createElement('picture');
-  const { pathname } = url;
+  const { origin, pathname } = url;
   const ext = pathname.split('.').pop();
 
   // webp
@@ -295,7 +273,7 @@ function createOptimizedPicture(
     const source = document.createElement('source');
     if (br.media) source.setAttribute('media', br.media);
     source.setAttribute('type', 'image/webp');
-    source.setAttribute('srcset', getOptimizedImageUrl(src, br.width, 'webp'));
+    source.setAttribute('srcset', `${origin}${pathname}?width=${br.width}&format=webply&optimize=medium`);
     picture.appendChild(source);
   });
 
@@ -304,24 +282,14 @@ function createOptimizedPicture(
     if (i < breakpoints.length - 1) {
       const source = document.createElement('source');
       if (br.media) source.setAttribute('media', br.media);
-      source.setAttribute('srcset', getOptimizedImageUrl(src, br.width, ext));
+      source.setAttribute('srcset', `${origin}${pathname}?width=${br.width}&format=${ext}&optimize=medium`);
       picture.appendChild(source);
     } else {
       const img = document.createElement('img');
       img.setAttribute('loading', eager ? 'eager' : 'lazy');
       img.setAttribute('alt', alt);
-      img.setAttribute('decoding', 'async');
-      if (eager) {
-        img.setAttribute('fetchpriority', 'high');
-      }
-      // Set width and height based on the smallest breakpoint
-      const smallestWidth = breakpoints[breakpoints.length - 1].width;
-      img.setAttribute('width', smallestWidth);
-      // Calculate height based on aspect ratio (assuming 16:9)
-      const height = Math.round((parseInt(smallestWidth, 10) * 9) / 16);
-      img.setAttribute('height', height.toString());
       picture.appendChild(img);
-      img.setAttribute('src', getOptimizedImageUrl(src, br.width, ext));
+      img.setAttribute('src', `${origin}${pathname}?width=${br.width}&format=${ext}&optimize=medium`);
     }
   });
 
