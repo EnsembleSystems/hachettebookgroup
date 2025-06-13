@@ -1,6 +1,7 @@
 .section.cards-container {
     background-color: hsl(202deg 50% 97%);
     padding: 0 20px;
+    border: 1px solid hsl(197deg 22% 86%)
 }
 
 .section.cards-container .default-content-wrapper {
@@ -96,7 +97,7 @@
 
 .section.cards-container .default-content-wrapper p.button-container a::after {
   content: "→";
-  margin-left: 5px;
+  margin-left: 8px;
   display: inline-block;
 }
 
@@ -104,9 +105,6 @@
   text-decoration: underline;
 }
 
-.section.cards-container .default-content-wrapper p.button-container a:hover::after {
-  text-decoration-line: none;
-}
 
 @media (width < 1024px) {
   .cards > ul {
