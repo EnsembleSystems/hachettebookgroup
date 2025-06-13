@@ -71,6 +71,9 @@ export default async function decorate(block) {
           <form class="footer-newsletter-form" onsubmit="return false;">
             <label for="footer-email" class="visually-hidden">Your email address</label>
             <input id="footer-email" type="email" placeholder="Your email address" autocomplete="off" />
+            <div class="footer-newsletter-legal mobile">
+              <small>By clicking 'Sign Up,' I acknowledge that I have read and agree to Hachette Book Group's <a href="https://www.hachettebookgroup.com/terms-and-policies/privacy-policy/">Privacy Policy</a> and <a href="https://www.hachettebookgroup.com/terms-and-policies/terms-of-use/">Terms of Use</a></small>
+            </div>
             <button type="submit">Sign Up</button>
           </form>
           <div class="footer-newsletter-legal">

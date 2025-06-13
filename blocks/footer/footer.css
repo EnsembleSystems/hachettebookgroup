@@ -194,6 +194,10 @@ footer.footer-demo {
   white-space: nowrap;
 }
 
+.footer-newsletter-legal.mobile {
+  display: none;
+}
+
 @media (width <= 900px) {
   .footer-top-row,
   .footer-links-row {
@@ -206,6 +210,12 @@ footer.footer-demo {
   .footer-demo {
     display: block;
     padding: 32px 0 0;
+  }
+
+
+
+  .footer-newsletter-legal.mobile {
+    display: block;
   }
 
   .footer-brand-social,
@@ -304,7 +314,6 @@ footer.footer-demo {
     align-self: flex-start;
     border-radius: 624.9375rem;
     padding: 12px 24px;
-    margin-top: 20px;
     border: 1px solid hsl(197deg 22% 86%);
     width: 100%;
     color: #e74c3c;
@@ -313,5 +322,6 @@ footer.footer-demo {
   .footer-newsletter-legal {
     margin-bottom: 20px;
     max-width: unset;
+    display: none;
   }
 }
