@@ -115,15 +115,23 @@ export default async function decorate(block) {
       const h3 = col.querySelector('h3');
       if (!h3) return;
 
+      // Create button wrapper for better accessibility
+      const buttonWrapper = document.createElement('div');
+      buttonWrapper.className = 'accordion-button-wrapper';
+      h3.parentNode.insertBefore(buttonWrapper, h3);
+      buttonWrapper.appendChild(h3);
+
       // Set initial ARIA attributes
       h3.setAttribute('role', 'button');
       h3.setAttribute('aria-expanded', 'false');
       h3.setAttribute('aria-controls', `footer-accordion-${Array.from(cols).indexOf(col)}`);
+      h3.setAttribute('tabindex', '0');
 
       const ul = col.querySelector('ul');
       if (ul) {
         ul.id = `footer-accordion-${Array.from(cols).indexOf(col)}`;
-        ul.setAttribute('aria-hidden', 'true');
+        // Remove aria-hidden to prevent focusable elements from being hidden
+        ul.removeAttribute('aria-hidden');
       }
 
       // Remove any existing click handlers
@@ -137,8 +145,13 @@ export default async function decorate(block) {
         // Toggle current accordion
         col.classList.toggle('active');
         h3.setAttribute('aria-expanded', !isExpanded);
-        if (ul) {
-          ul.setAttribute('aria-hidden', isExpanded);
+      });
+
+      // Add keyboard support
+      h3.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          h3.click();
         }
       });
 
@@ -161,9 +174,11 @@ export default async function decorate(block) {
         if (h3) {
           h3.setAttribute('role', 'button');
           h3.setAttribute('aria-expanded', 'false');
+          h3.setAttribute('tabindex', '0');
         }
+        // Remove aria-hidden to prevent focusable elements from being hidden
         if (ul) {
-          ul.setAttribute('aria-hidden', 'true');
+          ul.removeAttribute('aria-hidden');
         }
       } else {
         // Desktop: no accordion behavior
@@ -171,7 +186,9 @@ export default async function decorate(block) {
         if (h3) {
           h3.removeAttribute('role');
           h3.removeAttribute('aria-expanded');
+          h3.removeAttribute('tabindex');
         }
+        // Remove aria-hidden to prevent focusable elements from being hidden
         if (ul) {
           ul.removeAttribute('aria-hidden');
         }
