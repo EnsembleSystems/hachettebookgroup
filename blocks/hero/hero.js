@@ -7,6 +7,7 @@ export default function decorate(block) {
       img.setAttribute('loading', 'eager');
       img.setAttribute('fetchpriority', 'high');
       img.setAttribute('decoding', 'async');
+      img.setAttribute('rel', 'preload');
     }
     block.appendChild(picture);
   }
