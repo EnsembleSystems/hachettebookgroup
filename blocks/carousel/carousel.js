@@ -1,59 +1,59 @@
 export default function decorate(block) {
   // Extract the title from the first row
   const titleRow = block.querySelector('div:first-child');
-  const title = titleRow ? titleRow.querySelector('h2')?.textContent || 'New Releases' : 'New Releases';
+  const title = titleRow?.querySelector('h2')?.textContent || 'New Releases';
 
   // Extract all book items (skip the first row which contains the title)
-  const bookRows = Array.from(block.children).slice(1);
+  const bookRows = [...block.children].slice(1);
   const books = [];
 
   // Performance optimization: Preload first few images for LCP
-  function preloadCriticalImages(imageSrcs) {
+  const preloadCriticalImages = (imageSrcs) => {
     imageSrcs.slice(0, 4).forEach((src) => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = `${src}?format=webp&width=240&optimize=medium`;
-      link.type = 'image/webp';
+      const link = Object.assign(document.createElement('link'), {
+        rel: 'preload',
+        as: 'image',
+        href: `${src}?format=webp&width=240&optimize=medium`,
+        type: 'image/webp',
+      });
       document.head.appendChild(link);
     });
-  }
+  };
 
   // Performance optimization: Create optimized picture elements
-  function createOptimizedPicture(src, alt = '', eager = false) {
+  const createOptimizedPicture = (src, alt = '', eager = false) => {
     const picture = document.createElement('picture');
 
     // WebP source for modern browsers
-    const webpSource = document.createElement('source');
-    webpSource.type = 'image/webp';
-    webpSource.srcset = `${src}?format=webp&width=240&optimize=medium 240w, ${src}?format=webp&width=480&optimize=medium 480w`;
-    webpSource.sizes = '240px';
+    const webpSource = Object.assign(document.createElement('source'), {
+      type: 'image/webp',
+      srcset: `${src}?format=webp&width=240&optimize=medium 240w, ${src}?format=webp&width=480&optimize=medium 480w`,
+      sizes: '240px',
+    });
     picture.appendChild(webpSource);
 
     // Fallback JPEG source
-    const jpegSource = document.createElement('source');
-    jpegSource.type = 'image/jpeg';
-    jpegSource.srcset = `${src}?format=jpeg&width=240&optimize=medium 240w, ${src}?format=jpeg&width=480&optimize=medium 480w`;
-    jpegSource.sizes = '240px';
+    const jpegSource = Object.assign(document.createElement('source'), {
+      type: 'image/jpeg',
+      srcset: `${src}?format=jpeg&width=240&optimize=medium 240w, ${src}?format=jpeg&width=480&optimize=medium 480w`,
+      sizes: '240px',
+    });
     picture.appendChild(jpegSource);
 
     // Fallback img element
-    const img = document.createElement('img');
-    img.src = `${src}?format=jpeg&width=240&optimize=medium`;
-    img.alt = alt;
-    img.loading = eager ? 'eager' : 'lazy';
-    img.decoding = 'async';
-    img.width = 240;
-    img.height = 240;
-
-    // Mobile performance optimization
-    if (!eager) {
-      img.fetchPriority = 'low';
-    }
+    const img = Object.assign(document.createElement('img'), {
+      src: `${src}?format=jpeg&width=240&optimize=medium`,
+      alt,
+      loading: eager ? 'eager' : 'lazy',
+      decoding: 'async',
+      width: 240,
+      height: 240,
+      fetchPriority: eager ? 'high' : 'low',
+    });
 
     picture.appendChild(img);
     return picture;
-  }
+  };
 
   const imageSrcs = []; // Collect image sources for preloading
 
@@ -65,17 +65,18 @@ export default function decorate(block) {
 
       if (imageLink && pageLink) {
         const imageSrc = imageLink.getAttribute('href');
-        imageSrcs.push(imageSrc); // Add to preload list
+        imageSrcs.push(imageSrc);
 
         const picture = createOptimizedPicture(
           imageSrc,
           imageLink.getAttribute('title') || '',
-          false, // Don't eager load initially
+          false,
         );
 
-        const link = document.createElement('a');
-        link.href = pageLink.getAttribute('href');
-        link.title = pageLink.getAttribute('title') || '';
+        const link = Object.assign(document.createElement('a'), {
+          href: pageLink.getAttribute('href'),
+          title: pageLink.getAttribute('title') || '',
+        });
         link.appendChild(picture);
 
         books.push({
@@ -90,66 +91,72 @@ export default function decorate(block) {
   preloadCriticalImages(imageSrcs);
 
   // Clear the block and rebuild it
-  block.innerHTML = '';
+  block.replaceChildren();
 
-  // Create simple container
-  const container = document.createElement('div');
-  container.className = 'books-container';
+  // Create container structure efficiently
+  const container = Object.assign(document.createElement('div'), {
+    className: 'books-container',
+  });
 
   // Add title
-  const titleElement = document.createElement('h2');
-  titleElement.className = 'books-title';
-  titleElement.textContent = title;
+  const titleElement = Object.assign(document.createElement('h2'), {
+    className: 'books-title',
+    textContent: title,
+  });
   container.appendChild(titleElement);
 
-  // Create carousel container for overflow handling
-  const carouselContainer = document.createElement('div');
-  carouselContainer.className = 'carousel-container';
+  // Create carousel container
+  const carouselContainer = Object.assign(document.createElement('div'), {
+    className: 'carousel-container',
+  });
 
   // Create navigation controls
-  const controls = document.createElement('div');
-  controls.className = 'carousel-controls';
+  const controls = Object.assign(document.createElement('div'), {
+    className: 'carousel-controls',
+  });
 
-  const prevBtn = document.createElement('button');
-  prevBtn.id = 'prevBtn';
-  prevBtn.className = 'carousel-btn prev-btn';
-  prevBtn.innerHTML = '←';
+  const prevBtn = Object.assign(document.createElement('button'), {
+    id: 'prevBtn',
+    className: 'carousel-btn prev-btn',
+    innerHTML: '←',
+  });
   prevBtn.setAttribute('aria-label', 'Previous page');
 
-  const nextBtn = document.createElement('button');
-  nextBtn.id = 'nextBtn';
-  nextBtn.className = 'carousel-btn next-btn';
-  nextBtn.innerHTML = '→';
+  const nextBtn = Object.assign(document.createElement('button'), {
+    id: 'nextBtn',
+    className: 'carousel-btn next-btn',
+    innerHTML: '→',
+  });
   nextBtn.setAttribute('aria-label', 'Next page');
 
-  controls.appendChild(prevBtn);
-  controls.appendChild(nextBtn);
+  controls.append(prevBtn, nextBtn);
 
-  // Create carousel track (holds all pages)
-  const carouselTrack = document.createElement('div');
-  carouselTrack.className = 'carousel-track';
+  // Create carousel track
+  const carouselTrack = Object.assign(document.createElement('div'), {
+    className: 'carousel-track',
+  });
 
-  carouselContainer.appendChild(carouselTrack);
-  carouselContainer.appendChild(controls);
+  carouselContainer.append(carouselTrack, controls);
   container.appendChild(carouselContainer);
 
   // Create pagination dots
-  const paginationContainer = document.createElement('div');
-  paginationContainer.className = 'carousel-pagination';
+  const paginationContainer = Object.assign(document.createElement('div'), {
+    className: 'carousel-pagination',
+  });
   container.appendChild(paginationContainer);
 
   // Performance optimization: Intersection Observer for lazy loading
   let observer;
-  function setupIntersectionObserver() {
-    if (!('IntersectionObserver' in window)) return;
+  const setupIntersectionObserver = () => {
+    if (!window.IntersectionObserver) return;
 
     observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const img = entry.target.querySelector('img');
-          if (img && img.dataset.src) {
+          if (img?.dataset.src) {
             img.src = img.dataset.src;
-            img.removeAttribute('data-src');
+            delete img.dataset.src;
             observer.unobserve(entry.target);
           }
         }
@@ -158,29 +165,27 @@ export default function decorate(block) {
       rootMargin: '50px',
       threshold: 0.1,
     });
-  }
+  };
 
-  // Carousel functionality
-  function getVisibleCount() {
-    const width = window.innerWidth;
-    if (width >= 1280) return 10;
-    if (width >= 1024) return 8;
-    if (width >= 768) return 6;
-    if (width >= 540) return 2;
+  // Carousel functionality with modern JavaScript
+  const getVisibleCount = () => {
+    const { innerWidth } = window;
+    if (innerWidth >= 1280) return 10;
+    if (innerWidth >= 1024) return 8;
+    if (innerWidth >= 768) return 6;
+    if (innerWidth >= 540) return 2;
     return 1;
-  }
+  };
 
-  function getCols(visibleCount) {
+  const getCols = (visibleCount) => {
     if (visibleCount === 10) return 5;
     if (visibleCount === 8) return 4;
     if (visibleCount === 6) return 3;
     if (visibleCount === 2) return 2;
     return 1;
-  }
+  };
 
-  function getRows(visibleCount) {
-    return visibleCount <= 2 ? 1 : 2;
-  }
+  const getRows = (visibleCount) => (visibleCount <= 2 ? 1 : 2);
 
   // Carousel state
   let currentPage = 0;
@@ -191,77 +196,66 @@ export default function decorate(block) {
   let paginationDots = [];
 
   // Performance optimization: Batch DOM updates
-  function updatePaginationDots() {
+  const updatePaginationDots = () => {
     paginationDots.forEach((dot, index) => {
       dot.classList.toggle('active', index === currentPage);
     });
-  }
+  };
 
-  function updateCarousel() {
-    // Use requestAnimationFrame for smooth updates
+  const updateCarousel = () => {
     requestAnimationFrame(() => {
-      // Calculate transform accounting for gap between pages
-      const pageGap = 20; // Gap between carousel pages in CSS
+      const pageGap = 20;
       const pageWidth = carouselContainer.offsetWidth;
       const translateX = -currentPage * (pageWidth + pageGap);
 
       carouselTrack.style.transform = `translateX(${translateX}px)`;
 
-      // Update button states
       prevBtn.disabled = currentPage === 0;
       nextBtn.disabled = currentPage >= totalPages - 1;
 
-      // Update pagination dots
       updatePaginationDots();
     });
-  }
+  };
 
-  function goToPage(pageIndex) {
+  const goToPage = (pageIndex) => {
     if (isTransitioning || pageIndex < 0 || pageIndex >= totalPages) return;
 
     isTransitioning = true;
     currentPage = pageIndex;
     updateCarousel();
 
-    // Reset transition lock after animation
     setTimeout(() => {
       isTransitioning = false;
-    }, 500);
-  }
+    }, 300); // Reduced from 500ms for better performance
+  };
 
-  // Factory function to create dot click handler
-  function createDotClickHandler(pageIndex) {
-    // eslint-disable-next-line func-names
-    return function (e) {
-      e.preventDefault();
-      if (!isTransitioning) {
-        goToPage(pageIndex);
-      }
-    };
-  }
-
-  function createPaginationDots() {
-    // Clear existing dots efficiently
+  const createPaginationDots = () => {
     paginationContainer.replaceChildren();
     paginationDots = [];
 
-    // Create dots for each page using document fragment
     const fragment = document.createDocumentFragment();
-    for (let i = 0; i < totalPages; i += 1) {
-      const dot = document.createElement('button');
-      dot.className = 'pagination-dot';
+    const indices = Array.from({ length: totalPages }, (_, i) => i);
+
+    indices.forEach((i) => {
+      const dot = Object.assign(document.createElement('button'), {
+        className: 'pagination-dot',
+      });
       dot.setAttribute('aria-label', `Go to page ${i + 1}`);
 
-      dot.addEventListener('click', createDotClickHandler(i), { passive: true });
+      const handleClick = (e) => {
+        e.preventDefault();
+        if (!isTransitioning) goToPage(i);
+      };
+      dot.addEventListener('click', handleClick, { passive: false });
 
       fragment.appendChild(dot);
       paginationDots.push(dot);
-    }
-    paginationContainer.appendChild(fragment);
-  }
+    });
 
-  function createPages() {
-    // Clear existing pages efficiently
+    paginationContainer.appendChild(fragment);
+  };
+
+  const createPages = () => {
     carouselTrack.replaceChildren();
     pages = [];
 
@@ -270,46 +264,42 @@ export default function decorate(block) {
     const rows = getRows(visibleCount);
     totalPages = Math.ceil(books.length / visibleCount);
 
-    // Create document fragment for efficient DOM manipulation
     const fragment = document.createDocumentFragment();
-
-    // Capture observer reference to avoid unsafe closure reference
     const currentObserver = observer;
 
-    // Create each page
-    for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
-      const pageDiv = document.createElement('div');
-      pageDiv.className = 'carousel-page';
+    const pageIndices = Array.from({ length: totalPages }, (_, i) => i);
+
+    pageIndices.forEach((pageIndex) => {
+      const pageDiv = Object.assign(document.createElement('div'), {
+        className: 'carousel-page',
+      });
       pageDiv.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
       pageDiv.style.gridTemplateRows = `repeat(${rows}, auto)`;
 
-      // Get books for this page
       const startIndex = pageIndex * visibleCount;
       const endIndex = Math.min(startIndex + visibleCount, books.length);
       const pageBooks = books.slice(startIndex, endIndex);
 
-      // Add books to this page
       pageBooks.forEach((book, bookIndex) => {
-        const bookItem = document.createElement('div');
-        bookItem.className = 'book-item';
+        const bookItem = Object.assign(document.createElement('div'), {
+          className: 'book-item',
+        });
 
-        // Performance optimization: Only make first page images eager
         const bookElement = book.element.cloneNode(true);
         const img = bookElement.querySelector('img');
 
         if (img) {
-          // Make first page first image eager for LCP
-          if (pageIndex === 0 && bookIndex === 0) {
-            img.loading = 'eager';
-            img.fetchPriority = 'high';
-          } else if (pageIndex === 0) {
-            img.loading = 'eager';
-            img.fetchPriority = 'high';
+          if (pageIndex === 0) {
+            // First page images - eager loading
+            Object.assign(img, {
+              loading: 'eager',
+              fetchPriority: bookIndex === 0 ? 'high' : 'high',
+            });
           } else {
-            // Lazy load subsequent pages with placeholder
+            // Lazy load subsequent pages
             img.dataset.src = img.src;
             img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="240" height="240"%3E%3Crect width="100%25" height="100%25" fill="%23eaecee"/%3E%3C/svg%3E';
-            if (currentObserver) currentObserver.observe(bookItem);
+            currentObserver?.observe(bookItem);
           }
         }
 
@@ -319,71 +309,56 @@ export default function decorate(block) {
 
       fragment.appendChild(pageDiv);
       pages.push(pageDiv);
-    }
+    });
 
     carouselTrack.appendChild(fragment);
-
-    // Create pagination dots after pages are created
     createPaginationDots();
-  }
+  };
 
-  // Add everything to the block first
+  // Add everything to the block
   block.appendChild(container);
 
-  // Performance optimization: Use passive event listeners
+  // Event listeners with modern syntax
   prevBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    if (currentPage > 0 && !isTransitioning) {
-      goToPage(currentPage - 1);
-    }
-  }, { passive: false });
+    if (currentPage > 0 && !isTransitioning) goToPage(currentPage - 1);
+  });
 
   nextBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    if (currentPage < totalPages - 1 && !isTransitioning) {
-      goToPage(currentPage + 1);
-    }
-  }, { passive: false });
+    if (currentPage < totalPages - 1 && !isTransitioning) goToPage(currentPage + 1);
+  });
 
-  // Performance optimization: Debounce resize events
+  // Performance optimization: Debounced resize
   let resizeTimeout;
-  function debounceResize() {
+  const debounceResize = () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-      // Calculate current book index before layout change
       const oldVisibleCount = visibleCount;
       const currentBookIndex = currentPage * oldVisibleCount;
 
-      // Recalculate layout
       visibleCount = getVisibleCount();
 
-      // Recreate pages if layout changed
       if (oldVisibleCount !== visibleCount) {
-        // Calculate equivalent page in new layout to maintain position
         const newPage = Math.floor(currentBookIndex / visibleCount);
-
         createPages();
-
-        // Set to equivalent page, ensuring it's within bounds
         currentPage = Math.min(newPage, Math.max(0, totalPages - 1));
       } else {
-        // Recalculate total pages
         totalPages = Math.ceil(books.length / visibleCount);
         createPaginationDots();
       }
 
-      // Ensure current page is valid
       if (currentPage >= totalPages) {
         currentPage = Math.max(0, totalPages - 1);
       }
 
       updateCarousel();
-    }, 150); // 150ms debounce
-  }
+    }, 150);
+  };
 
   window.addEventListener('resize', debounceResize, { passive: true });
 
-  // Add structured data for SEO
+  // Structured data for SEO
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -395,24 +370,21 @@ export default function decorate(block) {
     })),
   };
 
-  const scriptTag = document.createElement('script');
-  scriptTag.type = 'application/ld+json';
-  scriptTag.textContent = JSON.stringify(structuredData);
+  const scriptTag = Object.assign(document.createElement('script'), {
+    type: 'application/ld+json',
+    textContent: JSON.stringify(structuredData),
+  });
   container.appendChild(scriptTag);
 
-  // Initialize performance optimizations
+  // Initialize
   setupIntersectionObserver();
-
-  // Initialize carousel
   createPages();
   updateCarousel();
 
-  // Performance optimization: Cleanup function for memory management
-  return function cleanup() {
+  // Cleanup function
+  return () => {
     clearTimeout(resizeTimeout);
     window.removeEventListener('resize', debounceResize);
-    if (observer) {
-      observer.disconnect();
-    }
+    observer?.disconnect();
   };
 }
