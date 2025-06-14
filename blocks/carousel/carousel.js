@@ -234,14 +234,22 @@ export default function decorate(block) {
   });
 
   window.addEventListener('resize', () => {
-    // Recalculate on resize
+    // Calculate current book index before layout change
     const oldVisibleCount = visibleCount;
+    const currentBookIndex = currentPage * oldVisibleCount;
+
+    // Recalculate layout
     visibleCount = getVisibleCount();
 
-    // Recreate pages if layout changed
-    if (oldVisibleCount !== visibleCount) {
-      currentPage = 0;
-      createPages();
+          // Recreate pages if layout changed
+      if (oldVisibleCount !== visibleCount) {
+        // Calculate equivalent page in new layout to maintain position
+        const newPage = Math.floor(currentBookIndex / visibleCount);
+
+        createPages();
+
+        // Set to equivalent page, ensuring it's within bounds
+        currentPage = Math.min(newPage, Math.max(0, totalPages - 1));
     } else {
       // Recalculate total pages
       totalPages = Math.ceil(books.length / visibleCount);
