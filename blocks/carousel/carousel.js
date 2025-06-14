@@ -46,6 +46,10 @@ export default function decorate(block) {
   titleElement.textContent = title;
   container.appendChild(titleElement);
 
+  // Create carousel container for overflow handling
+  const carouselContainer = document.createElement('div');
+  carouselContainer.className = 'carousel-container';
+
   // Create navigation controls
   const controls = document.createElement('div');
   controls.className = 'carousel-controls';
@@ -53,26 +57,22 @@ export default function decorate(block) {
   const prevBtn = document.createElement('button');
   prevBtn.id = 'prevBtn';
   prevBtn.className = 'carousel-btn prev-btn';
-  prevBtn.innerHTML = '← Previous';
+  prevBtn.innerHTML = '←';
 
   const nextBtn = document.createElement('button');
   nextBtn.id = 'nextBtn';
   nextBtn.className = 'carousel-btn next-btn';
-  nextBtn.innerHTML = 'Next →';
+  nextBtn.innerHTML = '→';
 
   controls.appendChild(prevBtn);
   controls.appendChild(nextBtn);
-  container.appendChild(controls);
-
-  // Create carousel container for overflow handling
-  const carouselContainer = document.createElement('div');
-  carouselContainer.className = 'carousel-container';
 
   // Create carousel track (holds all pages)
   const carouselTrack = document.createElement('div');
   carouselTrack.className = 'carousel-track';
 
   carouselContainer.appendChild(carouselTrack);
+  carouselContainer.appendChild(controls);
   container.appendChild(carouselContainer);
 
   // Create pagination dots
@@ -241,15 +241,15 @@ export default function decorate(block) {
     // Recalculate layout
     visibleCount = getVisibleCount();
 
-          // Recreate pages if layout changed
-      if (oldVisibleCount !== visibleCount) {
-        // Calculate equivalent page in new layout to maintain position
-        const newPage = Math.floor(currentBookIndex / visibleCount);
+    // Recreate pages if layout changed
+    if (oldVisibleCount !== visibleCount) {
+      // Calculate equivalent page in new layout to maintain position
+      const newPage = Math.floor(currentBookIndex / visibleCount);
 
-        createPages();
+      createPages();
 
-        // Set to equivalent page, ensuring it's within bounds
-        currentPage = Math.min(newPage, Math.max(0, totalPages - 1));
+      // Set to equivalent page, ensuring it's within bounds
+      currentPage = Math.min(newPage, Math.max(0, totalPages - 1));
     } else {
       // Recalculate total pages
       totalPages = Math.ceil(books.length / visibleCount);

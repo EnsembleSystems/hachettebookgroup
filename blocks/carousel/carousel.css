@@ -23,29 +23,53 @@
 
 /* Carousel Controls */
 .carousel-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .carousel-btn {
-  padding: 8px 16px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: white;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  transition: all 0.3s ease;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 }
 
 .carousel-btn:disabled {
-  background-color: #aaa;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .carousel-btn:hover:not(:disabled) {
-  background-color: #0056b3;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+}
+
+/* SVG Arrow Icons */
+.prev-btn {
+  left: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23D93A17" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M23.505 0c0.271 0 0.549 0.107 0.757 0.316 0.417 0.417 0.417 1.098 0 1.515l-14.258 14.264 14.050 14.050c0.417 0.417 0.417 1.098 0 1.515s-1.098 0.417-1.515 0l-14.807-14.807c-0.417-0.417-0.417-1.098 0-1.515l15.015-15.022c0.208-0.208 0.486-0.316 0.757-0.316z"/></svg>');
+}
+
+.next-btn {
+  right: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23D93A17" width="20" height="20" viewBox="-4.5 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M370.39,6519 L369,6520.406 L377.261,6529.013 L376.38,6529.931 L376.385,6529.926 L369.045,6537.573 L370.414,6539 C372.443,6536.887 378.107,6530.986 380,6529.013 C378.594,6527.547 379.965,6528.976 370.39,6519" transform="translate(-369, -6519)"/></svg>');
 }
 
 /* Carousel Container for Sliding */
@@ -157,6 +181,14 @@
   .carousel-pagination {
     display: none;
   }
+
+  .prev-btn {
+    left: 0;
+  }
+
+  .next-btn {
+    right: 0;
+  }
 }
 
 @media (width < 540px) {
@@ -171,14 +203,6 @@
     width: 240px;
   }
 
-  .carousel-controls {
-    margin-bottom: 15px;
-  }
-
-  .carousel-btn {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
 
   /* Ensure pagination dots stay hidden */
   .carousel-pagination {
