@@ -224,9 +224,9 @@
 
 @media (width <= 768px) {
   .books-title {
-    font-size: 28px;
+    font-size: 23px;
     margin-bottom: 20px;
-    padding-bottom: 10px;
+    padding-bottom: 27px;
   }
 
   .book-item {
