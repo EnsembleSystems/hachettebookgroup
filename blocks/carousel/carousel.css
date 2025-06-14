@@ -234,6 +234,10 @@
     width: 240px;
   }
 
+  
+}
+
+@media (width < 768px) {
   /* Hide pagination dots on mobile */
   .carousel-pagination {
     display: none;
