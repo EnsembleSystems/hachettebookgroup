@@ -2,16 +2,17 @@
   padding: 0 20px;
 }
 
-/* Carousel Container  Inner */
-.carousel-container-inner {
+/* Books Container */
+.books-container {
   position: relative;
   width: 100%;
   margin: 0 auto;
   padding: 40px 0;
+  contain: layout style;
 }
 
-/* Carousel Title */
-.carousel-title {
+/* Books Title */
+.books-title {
   text-align: center;
   font-size: 32px;
   font-weight: bold;
@@ -21,47 +22,159 @@
   margin-bottom: 40px;
 }
 
-/* Carousel Wrapper */
-.carousel-wrapper {
+/* Carousel Controls */
+.carousel-controls {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.carousel-btn {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: white;
+  border: 1px solid #d4dfe3;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+@media (width >= 768px) {
+  .carousel-btn {
+    transition: transform 0.2s ease;
+    will-change: auto;
+  }
+  
+  .carousel-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+  }
+}
+
+/* Mobile optimization - no hover effects or complex animations */
+@media (width <= 767px) {
+  .carousel-btn {
+    /* No transitions on mobile for better performance */
+    transition: none;
+  }
+}
+
+.carousel-btn:disabled {
+  display: none;
+}
+
+/* SVG Arrow Icons */
+.prev-btn {
+  left: 4px;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23D93A17" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M23.505 0c0.271 0 0.549 0.107 0.757 0.316 0.417 0.417 0.417 1.098 0 1.515l-14.258 14.264 14.050 14.050c0.417 0.417 0.417 1.098 0 1.515s-1.098 0.417-1.515 0l-14.807-14.807c-0.417-0.417-0.417-1.098 0-1.515l15.015-15.022c0.208-0.208 0.486-0.316 0.757-0.316z"/></svg>');
+}
+
+.next-btn {
+  right: 4px;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23D93A17" width="20" height="20" viewBox="-4.5 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M370.39,6519 L369,6520.406 L377.261,6529.013 L376.38,6529.931 L376.385,6529.926 L369.045,6537.573 L370.414,6539 C372.443,6536.887 378.107,6530.986 380,6529.013 C378.594,6527.547 379.965,6528.976 370.39,6519" transform="translate(-369, -6519)"/></svg>');
+}
+
+/* Carousel Container for Sliding */
+.carousel-container {
+  max-width: 1286px;
+  margin: 0 auto;
+  overflow: hidden;
   position: relative;
-  overflow: hidden;
-  margin: 0 auto;
+  contain: layout style;
 }
 
-/* Carousel Track Container */
-.carousel-track-container {
-  overflow: hidden;
-  margin: 0 auto;
-}
-
-/* Carousel Track */
+/* Carousel Track - Contains all pages */
 .carousel-track {
   display: flex;
-  transition: transform 0.5s ease-in-out;
-}
-
-/* Carousel Page */
-.carousel-page {
-  flex: 0 0 100%;
-  display: grid;
   gap: 20px;
-  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  will-change: transform;
 }
 
-/* Carousel Items */
-.carousel-item {
+/* Carousel Page - Each page is a grid */
+.carousel-page {
+  display: grid;
+  gap: 12px;
+  flex-shrink: 0;
+  width: 100%;
+  justify-items: center;
+  contain: layout;
+}
+
+/* Pagination Dots */
+.carousel-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pagination-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #eaecee;
+  border: none;
+  cursor: pointer;
+}
+
+/* Desktop-only hover effects for pagination dots */
+@media (width >= 768px) {
+  .pagination-dot {
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+  
+  .pagination-dot:hover {
+    transform: scale(1.1);
+  }
+}
+
+.pagination-dot.active {
+  background-color: #04090c;
+}
+
+/* Books Grid (Legacy - keeping for backwards compatibility) */
+.books-grid {
+  max-width: 1286px;
+  margin: 0 auto;
+}
+
+/* Book Items */
+.book-item {
   background: #eaecee;
   border-radius: .625rem;
   padding: 20px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 240px;
   width: 240px;
+  contain: layout style;
 }
 
-.carousel-item a {
+/* Desktop-only hover effects */
+@media (width >= 768px) {
+  .book-item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .book-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+  }
+}
+
+.book-item a {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,14 +183,14 @@
   text-decoration: none;
 }
 
-.carousel-item picture {
+.book-item picture {
   display: flex;
   justify-content: center;
   width: 100%;
   height: 100%;
 }
 
-.carousel-item img {
+.book-item img {
   max-width: 100%;
   max-height: 100%;
   width: auto;
@@ -85,204 +198,59 @@
   object-fit: contain;
 }
 
-/* Navigation Arrows */
-.carousel-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgb(255 255 255 / 90%);
-  border: 1px solid #d4dfe3;
-  border-radius: 50%;
-  width: 3.5rem;
-  height: 3.5rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: hsl(11deg 81% 47%);
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.carousel-nav:hover {
-  background: #fff;
-  border-color: #333;
-  transform: translateY(-50%) scale(1.05);
-}
-
-.carousel-nav:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  transform: translateY(-50%);
-}
-
-.carousel-prev {
-  left: 10px;
-}
-
-.carousel-next {
-  right: 10px;
-}
-
-/* Pagination Dots */
-.carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 30px;
-}
-
-.carousel-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: #ddd;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding-block: unset; 
-  padding-inline: unset;
-
-}
-
-.carousel-dot:hover {
-  background: #999;
-  transform: scale(1.2);
-}
-
-.carousel-dot.active {
-  background: #333;
-  transform: scale(1.3);
-}
-
-/* Responsive Breakpoints */
-
-/* 1280px and above: 2 rows, 5 columns */
-@media (width >= 1280px) {
-  .carousel-wrapper,
-  .carousel-track-container {
-    max-width: 1286px;
+/* Mobile-first responsive design */
+@media (width <= 540px) {
+  .books-container {
+    padding: 20px 0;
+  }
+  
+  .books-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
   }
 
-  .carousel-page {
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-  }
-}
-
-/* Below 1280px: 2 rows, 4 columns */
-@media (1024px <= width < 1280px) {
-  .carousel-container-inner {
-    padding: 40px 20px;
+  .book-item {
+    height: 200px;
+    width: 200px;
+    padding: 16px;
   }
 
-  .carousel-wrapper,
-  .carousel-track-container {
-    max-width: 1200px;
-  }
-
-  .carousel-page {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    justify-items: center;
-  }
-}
-
-/* Below 1024px: 2 rows, 3 columns */
-@media (768px <= width < 1024px) {
-  .carousel-wrapper,
-  .carousel-track-container {
-    max-width: 943px;
-  }
-
-  .carousel-page {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    justify-items: center;
-  }
-}
-
-/* Below 768px: 1 row, 2 columns, no dots */
-@media (540px <= width < 768px) {
-  .carousel-wrapper,
-  .carousel-track-container {
-    max-width: 767px;
-  }
-
-  .carousel-page {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 1fr;
-    justify-items: center;
-  }
-
-  .carousel-dots {
+  /* Hide pagination dots on smaller screens */
+  .carousel-pagination {
     display: none;
   }
-
-  .carousel-nav {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-
-  .carousel-prev {
-    left: 5px;
-  }
-
-  .carousel-next {
-    right: 5px;
-  }
-
-  .carousel-item {
-    height: 240px;
-    width: 240px;
-  }
 }
 
-/* Below 540px: 1 row, 1 column, no dots */
-@media (width < 540px) {
-  .carousel-wrapper,
-  .carousel-track-container {
-    max-width: 480px;
-  }
-
-  .carousel-page {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    padding: 0;
-    place-items: center;
-  }
-
-  .carousel-dots {
-    display: none;
-  }
-
-  .carousel-nav {
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-  }
-
-  .carousel-prev {
-    left: 5px;
-  }
-
-  .carousel-next {
-    right: 5px;
-  }
-
-  .carousel-title {
-    font-size: 32px;
+@media (width <= 768px) {
+  .books-title {
+    font-size: 23px;
     margin-bottom: 20px;
-    padding-bottom: 10px;
+    padding-bottom: 27px;
   }
 
-  .carousel-item {
-    padding: 15px;
+  .book-item {
     height: 240px;
     width: 240px;
-    margin: 0 auto;
+  }
+
+  
+}
+
+@media (width < 768px) {
+  /* Hide pagination dots on mobile */
+  .carousel-pagination {
+    display: none;
+  }
+}
+
+/* Performance optimization: Reduce animation complexity on mobile and for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track,
+  .carousel-btn,
+  .pagination-dot,
+  .book-item {
+    transition: none !important;
+    animation: none !important;
   }
 }

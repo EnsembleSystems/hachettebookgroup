@@ -190,7 +190,8 @@ nav {
   nav {
     padding-left: 20px;
     padding-right: 20px;
-    margin: unset
+    margin: unset;
+    max-width: unset;
   }
 
   .main-nav {
