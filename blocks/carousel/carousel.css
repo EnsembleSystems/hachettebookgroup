@@ -8,6 +8,7 @@
   width: 100%;
   margin: 0 auto;
   padding: 40px 0;
+  contain: layout style;
 }
 
 /* Books Title */
@@ -36,7 +37,7 @@
   width: 50px;
   height: 50px;
   background: white;
-  border: none;
+  border: 1px solid #d4dfe3;
   border-radius: 50%;
   cursor: pointer;
   pointer-events: auto;
@@ -44,11 +45,14 @@
   align-items: center;
   justify-content: center;
   font-size: 0;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-size: 20px 20px;
   background-repeat: no-repeat;
   background-position: center;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
 }
 
 .carousel-btn:disabled {
@@ -56,18 +60,17 @@
 }
 
 .carousel-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+  transform: scale(1.05) translateZ(0);
 }
 
 /* SVG Arrow Icons */
 .prev-btn {
-  left: 0;
+  left: 4px;
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23D93A17" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M23.505 0c0.271 0 0.549 0.107 0.757 0.316 0.417 0.417 0.417 1.098 0 1.515l-14.258 14.264 14.050 14.050c0.417 0.417 0.417 1.098 0 1.515s-1.098 0.417-1.515 0l-14.807-14.807c-0.417-0.417-0.417-1.098 0-1.515l15.015-15.022c0.208-0.208 0.486-0.316 0.757-0.316z"/></svg>');
 }
 
 .next-btn {
-  right: 0;
+  right: 4px;
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23D93A17" width="20" height="20" viewBox="-4.5 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M370.39,6519 L369,6520.406 L377.261,6529.013 L376.38,6529.931 L376.385,6529.926 L369.045,6537.573 L370.414,6539 C372.443,6536.887 378.107,6530.986 380,6529.013 C378.594,6527.547 379.965,6528.976 370.39,6519" transform="translate(-369, -6519)"/></svg>');
 }
 
@@ -77,14 +80,17 @@
   margin: 0 auto;
   overflow: hidden;
   position: relative;
+  contain: layout style;
 }
 
 /* Carousel Track - Contains all pages */
 .carousel-track {
   display: flex;
   gap: 20px;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
   will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* Carousel Page - Each page is a grid */
@@ -94,6 +100,7 @@
   flex-shrink: 0;
   width: 100%;
   justify-items: center;
+  contain: layout;
 }
 
 /* Pagination Dots */
@@ -112,10 +119,12 @@
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  will-change: transform, background-color;
+  backface-visibility: hidden;
 }
 
 .pagination-dot:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) translateZ(0);
 }
 
 .pagination-dot.active {
@@ -139,6 +148,14 @@
   justify-content: center;
   height: 240px;
   width: 240px;
+  will-change: transform;
+  backface-visibility: hidden;
+  contain: layout style;
+}
+
+.book-item:hover {
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
 }
 
 .book-item a {
@@ -163,6 +180,8 @@
   width: auto;
   height: auto;
   object-fit: contain;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Responsive adjustments for smaller screens */
@@ -181,13 +200,6 @@
     display: none;
   }
 
-  .prev-btn {
-    left: 0;
-  }
-
-  .next-btn {
-    right: 0;
-  }
 }
 
 @media (width < 540px) {
@@ -202,9 +214,18 @@
     width: 240px;
   }
 
-
   /* Ensure pagination dots stay hidden */
   .carousel-pagination {
     display: none;
+  }
+}
+
+/* Performance optimization: Reduce animation complexity on mobile */
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track,
+  .carousel-btn,
+  .pagination-dot,
+  .book-item {
+    transition: none;
   }
 }
