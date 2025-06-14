@@ -7,6 +7,56 @@ export default function decorate(block) {
   const bookRows = Array.from(block.children).slice(1);
   const books = [];
 
+  // Performance optimization: Preload first few images for LCP
+  function preloadCriticalImages(imageSrcs) {
+    imageSrcs.slice(0, 4).forEach((src) => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = `${src}?format=webp&width=240&optimize=medium`;
+      link.type = 'image/webp';
+      document.head.appendChild(link);
+    });
+  }
+
+  // Performance optimization: Create optimized picture elements
+  function createOptimizedPicture(src, alt = '', eager = false) {
+    const picture = document.createElement('picture');
+
+    // WebP source for modern browsers
+    const webpSource = document.createElement('source');
+    webpSource.type = 'image/webp';
+    webpSource.srcset = `${src}?format=webp&width=240&optimize=medium 240w, ${src}?format=webp&width=480&optimize=medium 480w`;
+    webpSource.sizes = '240px';
+    picture.appendChild(webpSource);
+
+    // Fallback JPEG source
+    const jpegSource = document.createElement('source');
+    jpegSource.type = 'image/jpeg';
+    jpegSource.srcset = `${src}?format=jpeg&width=240&optimize=medium 240w, ${src}?format=jpeg&width=480&optimize=medium 480w`;
+    jpegSource.sizes = '240px';
+    picture.appendChild(jpegSource);
+
+    // Fallback img element
+    const img = document.createElement('img');
+    img.src = `${src}?format=jpeg&width=240&optimize=medium`;
+    img.alt = alt;
+    img.loading = eager ? 'eager' : 'lazy';
+    img.decoding = 'async';
+    img.width = 240;
+    img.height = 240;
+
+    // Mobile performance optimization
+    if (!eager) {
+      img.fetchPriority = 'low';
+    }
+
+    picture.appendChild(img);
+    return picture;
+  }
+
+  const imageSrcs = []; // Collect image sources for preloading
+
   bookRows.forEach((row) => {
     const paragraphs = row.querySelectorAll('p');
     if (paragraphs.length >= 2) {
@@ -14,18 +64,19 @@ export default function decorate(block) {
       const pageLink = paragraphs[1].querySelector('a');
 
       if (imageLink && pageLink) {
-        const img = document.createElement('img');
-        img.src = imageLink.getAttribute('href');
-        img.alt = imageLink.getAttribute('title') || '';
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        // Add performance optimizations for images
-        img.fetchPriority = 'low';
+        const imageSrc = imageLink.getAttribute('href');
+        imageSrcs.push(imageSrc); // Add to preload list
+
+        const picture = createOptimizedPicture(
+          imageSrc,
+          imageLink.getAttribute('title') || '',
+          false, // Don't eager load initially
+        );
 
         const link = document.createElement('a');
         link.href = pageLink.getAttribute('href');
         link.title = pageLink.getAttribute('title') || '';
-        link.appendChild(img);
+        link.appendChild(picture);
 
         books.push({
           element: link,
@@ -34,6 +85,9 @@ export default function decorate(block) {
       }
     }
   });
+
+  // Preload critical images early
+  preloadCriticalImages(imageSrcs);
 
   // Clear the block and rebuild it
   block.innerHTML = '';
@@ -177,6 +231,7 @@ export default function decorate(block) {
 
   // Factory function to create dot click handler
   function createDotClickHandler(pageIndex) {
+    // eslint-disable-next-line func-names
     return function (e) {
       e.preventDefault();
       if (!isTransitioning) {
@@ -234,15 +289,24 @@ export default function decorate(block) {
       const pageBooks = books.slice(startIndex, endIndex);
 
       // Add books to this page
-      pageBooks.forEach((book) => {
+      pageBooks.forEach((book, bookIndex) => {
         const bookItem = document.createElement('div');
         bookItem.className = 'book-item';
 
-        // Performance optimization: Lazy load images for non-visible pages
+        // Performance optimization: Only make first page images eager
         const bookElement = book.element.cloneNode(true);
-        if (pageIndex > 0) { // Only lazy load for pages that aren't immediately visible
-          const img = bookElement.querySelector('img');
-          if (img) {
+        const img = bookElement.querySelector('img');
+
+        if (img) {
+          // Make first page first image eager for LCP
+          if (pageIndex === 0 && bookIndex === 0) {
+            img.loading = 'eager';
+            img.fetchPriority = 'high';
+          } else if (pageIndex === 0) {
+            img.loading = 'eager';
+            img.fetchPriority = 'high';
+          } else {
+            // Lazy load subsequent pages with placeholder
             img.dataset.src = img.src;
             img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="240" height="240"%3E%3Crect width="100%25" height="100%25" fill="%23eaecee"/%3E%3C/svg%3E';
             if (currentObserver) currentObserver.observe(bookItem);

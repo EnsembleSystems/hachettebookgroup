@@ -23,10 +23,9 @@
   --link-hover-color: #1d3ecf;
   --primary-color: #245a70;
 
-
   /* fonts */
-  --body-font-family: acumin-pro, sans-serif;
-  --heading-font-family: effra, sans-serif;
+  --body-font-family: acumin-pro, system-ui, -apple-system, blinkmacsystemfont, "segoe ui", roboto, sans-serif;
+  --heading-font-family: effra, system-ui, -apple-system, blinkmacsystemfont, "segoe ui", roboto, sans-serif;
 
   /* body sizes */
   --body-font-size-m: 22px;
@@ -49,9 +48,22 @@
   /* global width */
   --max-width: 1326px;
   --global-margin: 0 20px;
-  
 }
 
+/* Performance optimization: Mobile-first font sizes */
+@media (width <= 768px) {
+  :root {
+    --body-font-size-m: 18px;
+    --body-font-size-s: 16px;
+    --body-font-size-xs: 14px;
+    --heading-font-size-xxl: 32px;
+    --heading-font-size-xl: 28px;
+    --heading-font-size-l: 24px;
+    --heading-font-size-m: 22px;
+    --heading-font-size-s: 20px;
+    --heading-font-size-xs: 18px;
+  }
+}
 
 /* 1. Use a more-intuitive box-sizing model */
 *, *::before, *::after {
@@ -63,8 +75,8 @@
   margin: 0;
 }
 
-/* 3. Enable keyword animations */
-@media (prefers-reduced-motion: no-preference) {
+/* 3. Enable keyword animations only on devices that support them well */
+@media (width >= 768px) and (prefers-reduced-motion: no-preference) {
   html {
     interpolate-size: allow-keywords;
   }
@@ -75,12 +87,18 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-family: var(--body-font-family);
+
+  /* Performance optimization: Prevent layout shifts */
+  text-size-adjust: 100%;
 }
 
 /* 6. Improve media defaults */
 img, picture, video, canvas, svg {
   display: block;
   max-width: 100%;
+  
+  /* Performance optimization: Default to contain for better mobile performance */
+  object-fit: contain;
 }
 
 /* 7. Inherit fonts for form controls */
@@ -125,3 +143,19 @@ main picture {
   display: block;
   width: 100%;
 }
+
+/* Performance optimization: Reduce paint complexity on mobile */
+@media (width <= 768px) {
+  * {
+    /* Reduce complexity of rendering on mobile devices */
+    backface-visibility: hidden;
+  }
+  
+  /* Optimize image rendering on mobile */
+  img {
+    image-rendering: optimizespeed;
+    -webkit-optimize-contrast: true;
+  }
+}
+
+
