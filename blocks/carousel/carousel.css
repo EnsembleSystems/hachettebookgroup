@@ -73,6 +73,32 @@
   justify-items: center;
 }
 
+/* Pagination Dots */
+.carousel-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pagination-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #eaecee;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination-dot:hover {
+  transform: scale(1.1);
+}
+
+.pagination-dot.active {
+  background-color: #04090c;
+}
+
 /* Books Grid (Legacy - keeping for backwards compatibility) */
 .books-grid {
   max-width: 1286px;
@@ -126,6 +152,11 @@
     height: 240px;
     width: 240px;
   }
+
+  /* Hide pagination dots on smaller screens */
+  .carousel-pagination {
+    display: none;
+  }
 }
 
 @media (width < 540px) {
@@ -147,5 +178,10 @@
   .carousel-btn {
     padding: 6px 12px;
     font-size: 14px;
+  }
+
+  /* Ensure pagination dots stay hidden */
+  .carousel-pagination {
+    display: none;
   }
 }

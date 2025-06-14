@@ -75,6 +75,11 @@ export default function decorate(block) {
   carouselContainer.appendChild(carouselTrack);
   container.appendChild(carouselContainer);
 
+  // Create pagination dots
+  const paginationContainer = document.createElement('div');
+  paginationContainer.className = 'carousel-pagination';
+  container.appendChild(paginationContainer);
+
   // Carousel functionality
   function getVisibleCount() {
     const width = window.innerWidth;
@@ -103,6 +108,74 @@ export default function decorate(block) {
   let totalPages = 0;
   let isTransitioning = false;
   let pages = [];
+  let paginationDots = [];
+
+  function updatePaginationDots() {
+    paginationDots.forEach((dot, index) => {
+      if (index === currentPage) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+  }
+
+  function updateCarousel() {
+    // Calculate transform accounting for gap between pages
+    const pageGap = 20; // Gap between carousel pages in CSS
+    const pageWidth = carouselContainer.offsetWidth;
+    const translateX = -currentPage * (pageWidth + pageGap);
+
+    carouselTrack.style.transform = `translateX(${translateX}px)`;
+
+    // Update button states
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = currentPage >= totalPages - 1;
+
+    // Update pagination dots
+    updatePaginationDots();
+  }
+
+  function goToPage(pageIndex) {
+    if (isTransitioning || pageIndex < 0 || pageIndex >= totalPages) return;
+
+    isTransitioning = true;
+    currentPage = pageIndex;
+    updateCarousel();
+
+    // Reset transition lock after animation
+    setTimeout(() => {
+      isTransitioning = false;
+    }, 500);
+  }
+
+  // Factory function to create dot click handler
+  function createDotClickHandler(pageIndex) {
+    return function (e) {
+      e.preventDefault();
+      if (!isTransitioning) {
+        goToPage(pageIndex);
+      }
+    };
+  }
+
+  function createPaginationDots() {
+    // Clear existing dots
+    paginationContainer.innerHTML = '';
+    paginationDots = [];
+
+    // Create dots for each page
+    for (let i = 0; i < totalPages; i += 1) {
+      const dot = document.createElement('button');
+      dot.className = 'pagination-dot';
+      dot.setAttribute('aria-label', `Go to page ${i + 1}`);
+
+      dot.addEventListener('click', createDotClickHandler(i));
+
+      paginationContainer.appendChild(dot);
+      paginationDots.push(dot);
+    }
+  }
 
   function createPages() {
     // Clear existing pages
@@ -137,32 +210,9 @@ export default function decorate(block) {
       carouselTrack.appendChild(pageDiv);
       pages.push(pageDiv);
     }
-  }
 
-  function updateCarousel() {
-    // Calculate transform accounting for gap between pages
-    const pageGap = 20; // Gap between carousel pages in CSS
-    const pageWidth = carouselContainer.offsetWidth;
-    const translateX = -currentPage * (pageWidth + pageGap);
-
-    carouselTrack.style.transform = `translateX(${translateX}px)`;
-
-    // Update button states
-    prevBtn.disabled = currentPage === 0;
-    nextBtn.disabled = currentPage >= totalPages - 1;
-  }
-
-  function goToPage(pageIndex) {
-    if (isTransitioning || pageIndex < 0 || pageIndex >= totalPages) return;
-
-    isTransitioning = true;
-    currentPage = pageIndex;
-    updateCarousel();
-
-    // Reset transition lock after animation
-    setTimeout(() => {
-      isTransitioning = false;
-    }, 500);
+    // Create pagination dots after pages are created
+    createPaginationDots();
   }
 
   // Add everything to the block first
@@ -195,6 +245,7 @@ export default function decorate(block) {
     } else {
       // Recalculate total pages
       totalPages = Math.ceil(books.length / visibleCount);
+      createPaginationDots();
     }
 
     // Ensure current page is valid
