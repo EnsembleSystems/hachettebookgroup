@@ -134,10 +134,17 @@ footer.footer-demo {
   transition: color 0.2s;
 }
 
+.footer-newsletter-legal small a {
+  text-decoration: underline;
+  color: #3a5a6b;
+}
+
 .footer-links-col a:hover {
   color: #1a2a36;
   text-decoration: underline;
 }
+
+
 
 .footer-newsletter-legal a:hover {
   text-decoration: underline;
